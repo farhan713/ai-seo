@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum Plan {
+  SEO_CONTENT
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum BlogStatus {
+  GENERATED
+  COPIED
+  PUBLISHED
+}
+
+enum BacklinkPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum BacklinkStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String
+  password            String
+  role                UserRole  @default(CLIENT)
+  businessName        String?
+  businessUrl         String?
+  businessDescription String?
+  industry            String?
+  targetKeywords      String?
+  internalLinks       Json      @default("[]")
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  subscriptions Subscription[]
+  blogs         Blog[]
+  backlinks     Backlink[]
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan              Plan
+  status            SubscriptionStatus
+  blogsPerWeek      Int                @default(3)
+  backlinksPerMonth Int                @default(10)
+  startDate         DateTime
+  endDate           DateTime?
+  createdAt         DateTime           @default(now())
+}
+
+model Blog {
+  id              String     @id @default(cuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  slug            String
+  summary         String
+  body            Json
+  metaTitle       String
+  metaDescription String
+  status          BlogStatus @default(GENERATED)
+  generatedAt     DateTime   @default(now())
+  copiedAt        DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@unique([userId, slug])
+}
+
+model Backlink {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  directoryName String
+  directoryUrl  String
+  priority      BacklinkPriority
+  status        BacklinkStatus   @default(PENDING)
+  submittedAt   DateTime?
+  verifiedAt    DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
