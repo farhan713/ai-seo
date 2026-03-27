@@ -15,7 +15,10 @@ export default async function BlogsListPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Blogs</h1>
-        <p className="mt-1 text-sm text-muted">Generated posts for your business.</p>
+        <p className="mt-1 text-sm text-muted">
+          Open a post to <strong className="font-medium text-slate-700">copy HTML</strong> or plain text for your site or
+          CMS.
+        </p>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-card shadow-sm">

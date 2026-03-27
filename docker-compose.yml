@@ -1,0 +1,36 @@
+# VPS / local production: copy .env (never commit) with all keys, then:
+#   docker compose build
+#   docker compose up -d
+#
+# First-time DB: from any host with DATABASE_URL set:
+#   npx prisma migrate deploy
+#   — or —
+#   npx prisma db push
+#   npx prisma db seed   (optional)
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    # Optional: attach only to internal network when using a reverse proxy on the host
+    # networks: [internal]
+
+  # Uncomment for an all-in-one VPS with Postgres on the same machine (change DATABASE_URL in .env to postgres://postgres:...@db:5432/...)
+  # db:
+  #   image: postgres:16-alpine
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: change-me
+  #     POSTGRES_DB: aiseotool
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   ports:
+  #     - "127.0.0.1:5432:5432"
+
+# volumes:
+#   pgdata:

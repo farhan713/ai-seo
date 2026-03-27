@@ -4,7 +4,7 @@ export type BlogBlock =
   | { type: "ul"; content: string[] }
   | { type: "callout"; text?: string; content?: string };
 
-function blockText(b: BlogBlock): string {
+export function blockText(b: BlogBlock): string {
   if (b.type === "ul") return "";
   return ("text" in b && b.text) || ("content" in b && typeof b.content === "string" ? b.content : "") || "";
 }

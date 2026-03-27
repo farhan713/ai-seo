@@ -4,20 +4,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
-const nav = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/blogs", label: "Blogs" },
-  { href: "/dashboard/backlinks", label: "Backlinks" },
-];
+type NavItem = { href: string; label: string };
 
 type Props = {
   userName: string;
   userEmail: string;
   planBadge: string;
+  navItems: NavItem[];
 };
 
-export function DashboardShell({ userName, userEmail, planBadge, children }: Props & { children: React.ReactNode }) {
+export function DashboardShell({
+  userName,
+  userEmail,
+  planBadge,
+  navItems,
+  children,
+}: Props & { children: React.ReactNode }) {
   const pathname = usePathname();
+  const nav = navItems;
 
   return (
     <div className="flex min-h-screen bg-background">

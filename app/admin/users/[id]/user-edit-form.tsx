@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { IndustryVertical, MarketingGoal } from "@prisma/client";
+import { INDUSTRY_VERTICAL_OPTIONS, MARKETING_GOAL_OPTIONS } from "@/lib/marketing-presets";
 
 type UserRow = {
   id: string;
@@ -10,6 +12,8 @@ type UserRow = {
   businessUrl: string | null;
   businessDescription: string | null;
   industry: string | null;
+  industryVertical: IndustryVertical;
+  marketingGoal: MarketingGoal;
   targetKeywords: string | null;
   internalLinks: unknown;
   isActive: boolean;
@@ -25,6 +29,8 @@ export function UserEditForm({ user }: { user: UserRow }) {
     businessUrl: user.businessUrl || "",
     businessDescription: user.businessDescription || "",
     industry: user.industry || "",
+    industryVertical: user.industryVertical,
+    marketingGoal: user.marketingGoal,
     targetKeywords: user.targetKeywords || "",
     internalLinksJson: JSON.stringify(user.internalLinks ?? [], null, 2),
     isActive: user.isActive,
@@ -51,6 +57,8 @@ export function UserEditForm({ user }: { user: UserRow }) {
         businessUrl: form.businessUrl || null,
         businessDescription: form.businessDescription || null,
         industry: form.industry || null,
+        industryVertical: form.industryVertical,
+        marketingGoal: form.marketingGoal,
         targetKeywords: form.targetKeywords || null,
         internalLinks,
         isActive: form.isActive,
@@ -116,7 +124,37 @@ export function UserEditForm({ user }: { user: UserRow }) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Industry</label>
+          <label className="text-sm font-medium text-slate-700">Industry vertical (preset)</label>
+          <select
+            value={form.industryVertical}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, industryVertical: e.target.value as IndustryVertical }))
+            }
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          >
+            {INDUSTRY_VERTICAL_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">Marketing goal</label>
+          <select
+            value={form.marketingGoal}
+            onChange={(e) => setForm((f) => ({ ...f, marketingGoal: e.target.value as MarketingGoal }))}
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          >
+            {MARKETING_GOAL_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">Industry (free text)</label>
           <input
             value={form.industry}
             onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))}

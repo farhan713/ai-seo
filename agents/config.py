@@ -26,4 +26,8 @@ _load_dotenv()
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
+# Same as Roar Data seo-agent: direct session URL for psycopg2; pooler can break some clients
+DATABASE_URL = os.environ.get(
+    "DIRECT_URL",
+    os.environ.get("DATABASE_URL", ""),
+)

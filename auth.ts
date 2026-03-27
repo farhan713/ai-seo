@@ -2,13 +2,12 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
+import { authConfig } from "@/auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  trustHost: true,
+  ...authConfig,
+  secret: process.env.AUTH_SECRET,
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
-  pages: {
-    signIn: "/login",
-  },
   providers: [
     Credentials({
       name: "Credentials",
@@ -38,10 +37,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id!;
         token.role = user.role!;
+        token.email = user.email ?? "";
+        token.name = user.name ?? "";
       }
       return token;
     },
@@ -49,6 +51,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as typeof session.user.role;
+        session.user.email = (token.email as string | undefined) ?? session.user.email ?? "";
+        session.user.name = (token.name as string | undefined) ?? session.user.name ?? "";
       }
       return session;
     },

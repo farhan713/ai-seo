@@ -1,10 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  /// Netlify / AWS Linux (OpenSSL 3) serverless — keep "native" for local dev
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum UserRole {
@@ -12,8 +15,11 @@ enum UserRole {
   CLIENT
 }
 
+/// ₹499 starter · ₹899 growth (blogs + backlinks) · ₹1599 elite (+ social automation)
 enum Plan {
-  SEO_CONTENT
+  STARTER_499
+  GROWTH_899
+  ELITE_1599
 }
 
 enum SubscriptionStatus {
@@ -40,6 +46,56 @@ enum BacklinkStatus {
   VERIFIED
 }
 
+enum SocialAdStatus {
+  DRAFT
+  SCHEDULED
+  POSTED
+  FAILED
+}
+
+enum CrawlRunStatus {
+  RUNNING
+  COMPLETE
+  FAILED
+}
+
+enum CalendarItemStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  SKIPPED
+}
+
+/// Phase 0 presets: shapes audit and blog tone without replacing free-text industry.
+enum IndustryVertical {
+  GENERAL
+  LOCAL_SERVICES
+  ECOMMERCE
+  SAAS
+  PROFESSIONAL_SERVICES
+  HEALTHCARE
+  CREATIVE_TECH
+  HOSPITALITY
+  OTHER
+}
+
+enum MarketingGoal {
+  GENERATE_LEADS
+  ONLINE_SALES
+  BRAND_AWARENESS
+  LOCAL_VISITS
+  PRODUCT_SIGNUPS
+  OTHER
+}
+
+/// How a tracked keyword row was created (F5).
+enum TrackedKeywordSource {
+  AUTO_PROFILE
+  AUTO_GSC
+  AUTO_AUDIT
+  MANUAL
+}
+
 model User {
   id                  String    @id @default(cuid())
   email               String    @unique
@@ -50,15 +106,196 @@ model User {
   businessUrl         String?
   businessDescription String?
   industry            String?
+  /// Preset vertical for AI prompts (F3). Free-text industry field stays for detail.
+  industryVertical    IndustryVertical @default(GENERAL)
+  /// Primary outcome the client optimizes for (F3).
+  marketingGoal       MarketingGoal    @default(OTHER)
   targetKeywords      String?
   internalLinks       Json      @default("[]")
+  /// Meta Graph long-lived tokens etc. (encrypt at rest in production)
+  socialCredentials   Json?
   isActive            Boolean   @default(true)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  /// Phase 4 F2 — Growth/Elite monthly executive summary (email; Elite may attach PDF).
+  monthlyExecutiveReportOptIn Boolean   @default(false)
+  lastMonthlyReportSentAt     DateTime?
+  /// Optional BYOK: { "geminiApiKey"?, "pageSpeedApiKey"? } — see docs/guides/client-credentials-and-keys.md
+  clientProvidedKeys          Json      @default("{}")
+  /// Phase 5 F10 — include local SEO pack in audits when also local vertical/goal.
+  localSeoPackEnabled         Boolean   @default(false)
 
   subscriptions Subscription[]
   blogs         Blog[]
   backlinks     Backlink[]
+  siteAudits    SiteAudit[]
+  socialAds     SocialAd[]
+  crawlRuns     CrawlRun[]
+
+  searchConsoleConnection SearchConsoleConnection?
+  gscQueryRows            GscQueryRow[]
+  trackedKeywords         TrackedKeyword[]
+  contentCalendarItems    ContentCalendarItem[]
+  onPageChecklists        OnPageChecklist[]
+  socialPostPacks         SocialPostPack[]
+  competitorWatches       CompetitorWatch[]
+  ga4Connection           Ga4Connection?
+  reportShares            ReportShare[]
+}
+
+/// Phase 5 F7 — Google Analytics 4 (Data API) OAuth.
+model Ga4Connection {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken         String    @db.Text
+  accessToken          String?   @db.Text
+  accessTokenExpiresAt DateTime?
+  /// GA4 property numeric ID only, e.g. "123456789"
+  propertyId           String?
+  propertyDisplayName  String?   @db.VarChar(500)
+  /// Cached runReport summary (sessions, users, top pages)
+  summaryJson          Json?
+  lastSyncAt           DateTime?
+  lastSyncError        String?   @db.Text
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+/// Phase 5 F19 — time-limited public read-only snapshot.
+model ReportShare {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  expiresAt    DateTime
+  snapshotJson Json
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+/// Phase 4 F4 — saved competitor URLs with homepage signal snapshots for diffing.
+model CompetitorWatch {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url           String   @db.VarChar(2000)
+  urlKey        String   @db.VarChar(500)
+  label         String?  @db.VarChar(200)
+  snapshot      Json?
+  priorSnapshot Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, urlKey])
+  @@index([userId])
+}
+
+/// Phase 3 F8 — content calendar (from pillars or manual).
+model ContentCalendarItem {
+  id            String             @id @default(cuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String             @db.VarChar(500)
+  brief         String             @default("") @db.Text
+  dueDate       DateTime?
+  status        CalendarItemStatus @default(PLANNED)
+  sourceAuditId String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([userId, dueDate])
+}
+
+/// Phase 3 F9 — per-URL on-page checklist progress.
+model OnPageChecklist {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url         String   @db.VarChar(2000)
+  urlKey      String
+  siteAuditId String?
+  /// [{ id, label, category, done }]
+  tasks       Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, urlKey])
+  @@index([userId])
+}
+
+/// Phase 3 F11 — generated social captions (from blog or audit).
+model SocialPostPack {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blogId      String?
+  blog        Blog?    @relation(fields: [blogId], references: [id], onDelete: SetNull)
+  siteAuditId String?
+  linkedin    String?  @db.Text
+  instagram   String?  @db.Text
+  facebook    String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([blogId])
+}
+
+/// Client keyword / topic tracker (F5). Seeded from profile + audit pillars + GSC; clients may edit.
+model TrackedKeyword {
+  id        String               @id @default(cuid())
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phrase    String               @db.VarChar(2000)
+  phraseKey String
+  note      String?              @db.Text
+  source    TrackedKeywordSource @default(MANUAL)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@unique([userId, phraseKey])
+  @@index([userId])
+}
+
+/// Google Search Console OAuth (read-only). Phase 2 — automated query import, no manual keywords.
+model SearchConsoleConnection {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken         String    @db.Text
+  accessToken          String?   @db.Text
+  accessTokenExpiresAt DateTime?
+  /// Property URL from GSC API, e.g. https://www.example.com/ or sc-domain:example.com
+  siteUrl              String?
+  lastSyncAt           DateTime?
+  lastSyncError        String?   @db.Text
+  /// Last successful sync window (inclusive ISO dates)
+  periodStart          DateTime? @db.Date
+  periodEnd            DateTime? @db.Date
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+/// Aggregated search queries for the last sync window (replaced on each sync).
+model GscQueryRow {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query       String   @db.Text
+  /// sha256 hex of query — unique index (queries can be very long)
+  queryKey    String
+  clicks      Int
+  impressions Int
+  ctr         Float
+  position    Float
+  periodStart DateTime @db.Date
+  periodEnd   DateTime @db.Date
+  syncedAt    DateTime @default(now())
+
+  @@index([userId, periodEnd])
+  @@unique([userId, queryKey, periodStart, periodEnd])
 }
 
 model Subscription {
@@ -66,12 +303,70 @@ model Subscription {
   userId            String
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan              Plan
+  priceInInr        Int                @default(899)
   status            SubscriptionStatus
-  blogsPerWeek      Int                @default(3)
-  backlinksPerMonth Int                @default(10)
+  blogsPerWeek      Int                @default(0)
+  backlinksPerMonth Int                @default(0)
   startDate         DateTime
   endDate           DateTime?
-  createdAt         DateTime           @default(now())
+  /// Monotonic batch for directory checklist (new set after weekly completion)
+  backlinkBatch     Int                @default(1)
+  /// When true, all 10 in current batch are done; next batch after nextBacklinkBatchAt
+  backlinkBatchDone   Boolean   @default(false)
+  nextBacklinkBatchAt DateTime?
+  createdAt           DateTime  @default(now())
+}
+
+model SiteAudit {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url         String
+  findings    Json
+  summary     String   @default("")
+  /// PageSpeed Insights / Lighthouse snapshot (scores, opportunities, or error)
+  lighthouse  Json?
+  /// AI-only pack: meta variants, JSON-LD, competitor gap, content pillars, opportunity index (not from free tools)
+  deliverables Json?
+  /// Slim snapshot from our live fetch (title, meta, H1 count) so the UI proves we read real HTML
+  pageSnapshot Json?
+  createdAt   DateTime @default(now())
+}
+
+/// Multi-page site crawl (sitemap + homepage) for Starter+ “mini site audit” track.
+model CrawlRun {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baseUrl      String
+  status       CrawlRunStatus  @default(RUNNING)
+  maxPages     Int             @default(50)
+  pagesCrawled Int             @default(0)
+  /// { errors, warnings, notices, healthy, broken, blocked, redirect }
+  stats        Json?
+  errorMessage String?
+  startedAt    DateTime        @default(now())
+  completedAt  DateTime?
+  pages        CrawlPage[]
+
+  @@index([userId, startedAt])
+}
+
+model CrawlPage {
+  id               String   @id @default(cuid())
+  crawlRunId       String
+  crawlRun         CrawlRun @relation(fields: [crawlRunId], references: [id], onDelete: Cascade)
+  url              String
+  finalUrl         String?
+  statusCode       Int?
+  ok               Boolean  @default(false)
+  title            String?
+  metaDescription  String?
+  h1Count          Int      @default(0)
+  /// [{ id, severity, title, detail }]
+  issues           Json     @default("[]")
+
+  @@index([crawlRunId])
 }
 
 model Blog {
@@ -84,6 +379,9 @@ model Blog {
   body            Json
   metaTitle       String
   metaDescription String
+  coverImageUrl   String?
+  /// Designer brief from Gemini (same idea as Roar Data topic cards + copy; no paid image API).
+  coverImagePrompt String?
   status          BlogStatus @default(GENERATED)
   generatedAt     DateTime   @default(now())
   copiedAt        DateTime?
@@ -91,12 +389,14 @@ model Blog {
   updatedAt       DateTime   @updatedAt
 
   @@unique([userId, slug])
+  socialPostPacks SocialPostPack[]
 }
 
 model Backlink {
   id            String           @id @default(cuid())
   userId        String
   user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch         Int              @default(1)
   directoryName String
   directoryUrl  String
   priority      BacklinkPriority
@@ -105,4 +405,21 @@ model Backlink {
   verifiedAt    DateTime?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
+}
+
+model SocialAd {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateKey     String
+  caption     String
+  imageUrl    String?
+  platforms   Json
+  status      SocialAdStatus @default(DRAFT)
+  postedAt    DateTime?
+  errorDetail String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, dateKey])
 }

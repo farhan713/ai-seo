@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { IndustryVertical, MarketingGoal } from "@prisma/client";
+import { INDUSTRY_VERTICAL_OPTIONS, MARKETING_GOAL_OPTIONS } from "@/lib/marketing-presets";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,6 +18,8 @@ export default function RegisterPage() {
     businessUrl: "",
     businessDescription: "",
     industry: "",
+    industryVertical: "GENERAL" as IndustryVertical,
+    marketingGoal: "OTHER" as MarketingGoal,
     targetKeywords: "",
     internalLinksJson: "[]",
   });
@@ -48,6 +52,8 @@ export default function RegisterPage() {
         businessUrl: form.businessUrl || undefined,
         businessDescription: form.businessDescription || undefined,
         industry: form.industry || undefined,
+        industryVertical: form.industryVertical,
+        marketingGoal: form.marketingGoal,
         targetKeywords: form.targetKeywords || undefined,
         internalLinks,
       }),
@@ -130,7 +136,35 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Industry</label>
+              <label className="block text-sm font-medium text-slate-700">Industry vertical</label>
+              <select
+                value={form.industryVertical}
+                onChange={(e) => update("industryVertical", e.target.value as IndustryVertical)}
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent"
+              >
+                {INDUSTRY_VERTICAL_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Marketing goal</label>
+              <select
+                value={form.marketingGoal}
+                onChange={(e) => update("marketingGoal", e.target.value as MarketingGoal)}
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent"
+              >
+                {MARKETING_GOAL_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-700">Industry (free text, optional)</label>
               <input
                 value={form.industry}
                 onChange={(e) => update("industry", e.target.value)}

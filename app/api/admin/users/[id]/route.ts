@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { parseIndustryVertical, parseMarketingGoal } from "@/lib/marketing-presets";
+import { syncAutoTrackedKeywordsFromBusinessProfile } from "@/lib/tracked-keywords-bootstrap";
 
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -34,6 +36,20 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     data.internalLinks = body.internalLinks as Prisma.InputJsonValue;
   }
   if (typeof body.isActive === "boolean") data.isActive = body.isActive;
+  if (body.industryVertical !== undefined) {
+    const v = parseIndustryVertical(body.industryVertical);
+    if (!v) {
+      return NextResponse.json({ error: "Invalid industryVertical" }, { status: 400 });
+    }
+    data.industryVertical = v;
+  }
+  if (body.marketingGoal !== undefined) {
+    const g = parseMarketingGoal(body.marketingGoal);
+    if (!g) {
+      return NextResponse.json({ error: "Invalid marketingGoal" }, { status: 400 });
+    }
+    data.marketingGoal = g;
+  }
 
   const user = await prisma.user.update({
     where: { id },
@@ -47,12 +63,24 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
       businessUrl: true,
       businessDescription: true,
       industry: true,
+      industryVertical: true,
+      marketingGoal: true,
       targetKeywords: true,
       internalLinks: true,
       isActive: true,
       createdAt: true,
     },
   });
+
+  if (
+    user.role === "CLIENT" &&
+    (data.targetKeywords !== undefined ||
+      data.industry !== undefined ||
+      data.businessName !== undefined ||
+      data.industryVertical !== undefined)
+  ) {
+    await syncAutoTrackedKeywordsFromBusinessProfile(id).catch(() => {});
+  }
 
   return NextResponse.json(user);
 }

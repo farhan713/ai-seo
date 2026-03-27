@@ -1,0 +1,42 @@
+================================================================================
+  VPS — run the full app on your server (Docker or Node)
+================================================================================
+
+  Yes: you deploy the whole codebase and keep ALL API keys on the VPS in a
+  file named .env (same variables as .env.example). Do NOT commit .env to Git.
+
+  Full steps, Nginx/HTTPS, OAuth URLs, security checklist:
+    docs/deployment/vps.md
+
+================================================================================
+  Quick path — Docker
+================================================================================
+
+  On the VPS (Docker + Compose installed):
+
+    git clone <your-repo> && cd aiseotool
+    cp .env.example .env
+    nano .env          # AUTH_URL=https://your-domain.com  + all keys
+    chmod 600 .env
+
+    npm ci
+    npx prisma migrate deploy    # or: npx prisma db push
+    npx prisma db seed           # optional
+
+    docker compose build
+    docker compose up -d
+
+  App on port 3000 — put Nginx/Caddy in front for HTTPS (see vps.md).
+
+  Or from repo root:
+    npm run docker:build
+    npm run docker:up
+
+================================================================================
+  Files
+================================================================================
+
+  Dockerfile          — production image (Next standalone + Prisma)
+  docker-compose.yml  — runs app with env_file: .env
+
+================================================================================

@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureDefaultBacklinksForUser } from "@/lib/ensure-backlinks";
+import { defaultsForPlan } from "@/lib/subscription-defaults";
+import { hasGrowthFeatures } from "@/lib/plan-access";
+import { ensureTrackedKeywordsSeeded } from "@/lib/tracked-keywords-bootstrap";
 import type { Plan, SubscriptionStatus } from "@prisma/client";
+
+const PLANS: Plan[] = ["STARTER_499", "GROWTH_899", "ELITE_1599"];
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -14,19 +19,31 @@ export async function POST(req: Request) {
   const userId = String(body.userId || "");
   const plan = body.plan as Plan | undefined;
   const status = body.status as SubscriptionStatus | undefined;
-  const blogsPerWeek = Number(body.blogsPerWeek) || 3;
-  const backlinksPerMonth = Number(body.backlinksPerMonth) || 10;
   const subscriptionId = body.subscriptionId ? String(body.subscriptionId) : null;
 
   if (!userId) {
     return NextResponse.json({ error: "userId required" }, { status: 400 });
   }
-  if (plan !== "SEO_CONTENT") {
+  if (!plan || !PLANS.includes(plan)) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
   if (!status || !["ACTIVE", "PAUSED", "CANCELLED"].includes(status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
+
+  const defs = defaultsForPlan(plan);
+  const blogsPerWeek =
+    body.blogsPerWeek !== undefined && body.blogsPerWeek !== ""
+      ? Number(body.blogsPerWeek)
+      : defs.blogsPerWeek;
+  const backlinksPerMonth =
+    body.backlinksPerMonth !== undefined && body.backlinksPerMonth !== ""
+      ? Number(body.backlinksPerMonth)
+      : defs.backlinksPerMonth;
+  const priceInInr =
+    body.priceInInr !== undefined && body.priceInInr !== ""
+      ? Number(body.priceInInr)
+      : defs.priceInInr;
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -44,6 +61,7 @@ export async function POST(req: Request) {
       data: {
         plan,
         status,
+        priceInInr,
         blogsPerWeek,
         backlinksPerMonth,
         startDate: body.startDate ? new Date(body.startDate) : existing.startDate,
@@ -56,6 +74,7 @@ export async function POST(req: Request) {
         userId,
         plan,
         status,
+        priceInInr,
         blogsPerWeek,
         backlinksPerMonth,
         startDate: body.startDate ? new Date(body.startDate) : new Date(),
@@ -64,8 +83,12 @@ export async function POST(req: Request) {
     });
   }
 
-  if (status === "ACTIVE") {
+  if (status === "ACTIVE" && hasGrowthFeatures(plan)) {
     await ensureDefaultBacklinksForUser(userId);
+  }
+
+  if (status === "ACTIVE") {
+    await ensureTrackedKeywordsSeeded(userId).catch(() => {});
   }
 
   return NextResponse.json(sub);

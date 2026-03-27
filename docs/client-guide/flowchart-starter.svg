@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 920" width="640" height="920" role="img" aria-labelledby="title desc">
+  <title id="title">Starter plan - client journey</title>
+  <desc id="desc">Flowchart from sign-up through SEO tools to measuring progress</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#0ea5e9"/>
+    </marker>
+    <linearGradient id="boxGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f9ff"/>
+      <stop offset="100%" style="stop-color:#e0f2fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="920" fill="#ffffff"/>
+  <text x="320" y="36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Starter plan (Rs 499/mo) - your journey</text>
+  <ellipse cx="320" cy="78" rx="88" ry="22" fill="#0ea5e9" opacity="0.15" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="320" y="84" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0369a1">Start</text>
+  <line x1="320" y1="100" x2="320" y2="118" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="200" y="120" width="240" height="48" rx="8" fill="url(#boxGrad)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="320" y="140" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Register &amp; log in</text>
+  <text x="320" y="156" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#475569">Email + password</text>
+  <line x1="320" y1="168" x2="320" y2="188" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="160" y="190" width="320" height="56" rx="8" fill="url(#boxGrad)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="320" y="212" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Business profile</text>
+  <text x="320" y="228" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#475569">URL, industry, goals, target keywords</text>
+  <line x1="320" y1="246" x2="320" y2="266" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="120" y="268" width="400" height="52" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="320" y="288" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#92400e">These presets improve AI audit &amp; keyword suggestions</text>
+  <text x="320" y="304" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#78350f">Saved on your account - edit anytime</text>
+  <line x1="320" y1="320" x2="320" y2="338" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="320" y="358" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#334155">Use the sidebar tools (any order)</text>
+  <line x1="320" y1="368" x2="120" y2="400" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="320" y1="368" x2="240" y2="400" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="320" y1="368" x2="400" y2="400" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="320" y1="368" x2="520" y2="400" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="40" y="402" width="150" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="115" y="428" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#0f172a">Site audit</text>
+  <text x="115" y="446" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">AI + Lighthouse</text>
+  <text x="115" y="460" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">on your URL</text>
+  <rect x="165" y="402" width="150" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="240" y="428" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#0f172a">Site crawl</text>
+  <text x="240" y="446" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">Multi-page</text>
+  <text x="240" y="460" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">health check</text>
+  <rect x="290" y="402" width="150" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="365" y="428" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#0f172a">Search</text>
+  <text x="365" y="442" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#0f172a">performance</text>
+  <text x="365" y="460" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">Google Search Console</text>
+  <rect x="415" y="402" width="185" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="507" y="428" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#0f172a">Keywords</text>
+  <text x="507" y="446" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">Up to 10 tracked</text>
+  <text x="507" y="460" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#475569">+ GSC stats</text>
+  <line x1="115" y1="474" x2="320" y2="530" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="240" y1="474" x2="320" y2="530" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="365" y1="474" x2="320" y2="530" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="507" y1="474" x2="320" y2="530" stroke="#94a3b8" stroke-width="1.5"/>
+  <polygon points="320,520 328,532 312,532" fill="#0ea5e9"/>
+  <rect x="200" y="536" width="240" height="56" rx="8" fill="url(#boxGrad)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="320" y="558" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Overview dashboard</text>
+  <text x="320" y="576" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#475569">Summary + audit progress (before / after)</text>
+  <line x1="320" y1="592" x2="320" y2="612" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="170" y="614" width="300" height="52" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+  <text x="320" y="636" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#065f46">Measure improvement over time</text>
+  <text x="320" y="652" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#047857">Re-run Site audit to update the progress card</text>
+  <line x1="320" y1="666" x2="320" y2="688" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="210" y="690" width="220" height="44" rx="22" fill="#0ea5e9"/>
+  <text x="320" y="716" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#ffffff">Keep refining your profile &amp; content</text>
+  <text x="320" y="760" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">Admin assigns your plan - Support via your agency contact</text>
+  <text x="320" y="888" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#94a3b8">AI SEO Tool - Client guide (Starter)</text>
+</svg>

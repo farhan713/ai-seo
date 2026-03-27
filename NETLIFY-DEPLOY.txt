@@ -1,0 +1,68 @@
+================================================================================
+  NETLIFY — why you cannot “drag and drop” a build folder for this app
+================================================================================
+
+Netlify’s “Deploy manually” (drag-and-drop) only publishes STATIC files:
+plain HTML/CSS/JS. It does NOT run a Next.js server or your API routes.
+
+This project uses:
+  • Next.js API routes (login, audits, database, etc.)
+  • Prisma + PostgreSQL
+  • NextAuth
+
+So there is NO folder you can zip and drop that will work like a static site.
+You need either:
+  (A) Git connected to Netlify (build on Netlify), OR
+  (B) Netlify CLI from your computer (build locally or on Netlify, then upload)
+      — still no drag-drop, but NO Git required.
+
+================================================================================
+  Option B — deploy from your machine (no Git), one command after setup
+================================================================================
+
+  1. Install Node 20+ and npm.
+
+  2. In this project folder:
+       npm install
+
+  3. Log in to Netlify (opens browser):
+       npm run netlify:login
+
+  4. Create or link a site (first time only):
+       • In Netlify UI: create an empty site, copy nothing yet, OR
+       • Run: npm run netlify:link
+         and pick the site (or create one when prompted).
+
+  5. In Netlify → Site configuration → Environment variables, add at least:
+       AUTH_URL          = https://YOUR-SITE.netlify.app   (no trailing slash)
+       AUTH_SECRET       = (random string, e.g. openssl rand -base64 32)
+       DATABASE_URL      = your Postgres pooler URL
+       DIRECT_URL        = your Postgres direct URL
+       GEMINI_API_KEY    = (for AI features)
+
+  6. Apply database schema to production DB (from your PC, once):
+       npx prisma migrate deploy
+       — or: npx prisma db push
+       Then seed users if needed: npx prisma db seed
+
+  7. Deploy (builds using netlify.toml and uploads):
+       npm run netlify:deploy
+
+  For a preview URL without production flag:
+       npm run netlify:deploy:draft
+
+================================================================================
+  Google OAuth (Search Console / GA4)
+================================================================================
+
+  In Google Cloud Console, add redirect URIs using your real AUTH_URL:
+    https://YOUR-SITE.netlify.app/api/integrations/search-console/callback
+    https://YOUR-SITE.netlify.app/api/integrations/ga4/callback
+
+================================================================================
+  More detail
+================================================================================
+
+  See: docs/deployment/netlify.md
+
+================================================================================

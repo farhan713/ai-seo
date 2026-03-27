@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
+import { parseIndustryVertical, parseMarketingGoal } from "@/lib/marketing-presets";
 
 export async function POST(req: Request) {
   try {
@@ -15,6 +16,14 @@ export async function POST(req: Request) {
     const businessDescription = String(body.businessDescription || "").trim() || null;
     const industry = String(body.industry || "").trim() || null;
     const targetKeywords = String(body.targetKeywords || "").trim() || null;
+    const iv = parseIndustryVertical(body.industryVertical);
+    const mg = parseMarketingGoal(body.marketingGoal);
+    if (body.industryVertical != null && body.industryVertical !== "" && !iv) {
+      return NextResponse.json({ error: "Invalid industry vertical" }, { status: 400 });
+    }
+    if (body.marketingGoal != null && body.marketingGoal !== "" && !mg) {
+      return NextResponse.json({ error: "Invalid marketing goal" }, { status: 400 });
+    }
     let internalLinks: unknown = body.internalLinks;
     if (!Array.isArray(internalLinks)) internalLinks = [];
 
@@ -41,6 +50,8 @@ export async function POST(req: Request) {
         businessUrl,
         businessDescription,
         industry,
+        industryVertical: iv ?? undefined,
+        marketingGoal: mg ?? undefined,
         targetKeywords,
         internalLinks: internalLinks as object[],
       },

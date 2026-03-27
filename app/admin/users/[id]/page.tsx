@@ -34,6 +34,8 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           businessUrl: user.businessUrl,
           businessDescription: user.businessDescription,
           industry: user.industry,
+          industryVertical: user.industryVertical,
+          marketingGoal: user.marketingGoal,
           targetKeywords: user.targetKeywords,
           internalLinks: user.internalLinks,
           isActive: user.isActive,

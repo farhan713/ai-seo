@@ -1,30 +1,8 @@
-import { auth } from "@/auth";
-import { NextResponse } from "next/server";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const session = req.auth;
-
-  if (pathname.startsWith("/dashboard")) {
-    if (!session?.user) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-    if (session.user.role !== "CLIENT") {
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-  }
-
-  if (pathname.startsWith("/admin")) {
-    if (!session?.user) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-    if (session.user.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-  }
-
-  return NextResponse.next();
-});
+/** Edge bundle must stay small (Vercel Hobby ~1MB). Do not import auth.ts / Prisma here. */
+export default NextAuth(authConfig).auth;
 
 export const config = {
   matcher: ["/dashboard/:path*", "/admin/:path*"],

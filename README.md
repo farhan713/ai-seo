@@ -5,7 +5,7 @@ Multi-tenant MVP where clients on an **SEO_CONTENT** plan receive AI-generated b
 ## Stack
 
 - Next.js 15 (App Router), TypeScript, Tailwind CSS v4
-- Prisma 6 + PostgreSQL (Supabase-compatible)
+- Prisma 6 + PostgreSQL (**same env pattern as Roar Data**: `DATABASE_URL` + `DIRECT_URL` for Supabase pooler + direct)
 - NextAuth.js v5 (credentials)
 - Google Gemini (blog generation in **Next.js** admin API and **Python** cron agent)
 
@@ -31,7 +31,9 @@ Multi-tenant MVP where clients on an **SEO_CONTENT** plan receive AI-generated b
    cp .env.example .env
    ```
 
-   Set `DATABASE_URL`, `AUTH_SECRET` (e.g. `openssl rand -base64 32`), `AUTH_URL` (production URL when deployed), `GEMINI_API_KEY`, and `ADMIN_EMAIL` / `ADMIN_PASSWORD` for the seed script.
+   Set **`DATABASE_URL`** and **`DIRECT_URL`** like Roar Data / Supabase: pooled connection for the app, direct (port 5432) for migrations and tooling. If you only have one connection string (e.g. Neon), use the **same value for both**.
+
+   Also set `AUTH_SECRET` (e.g. `openssl rand -base64 32`), `AUTH_URL` (production URL when deployed), `GEMINI_API_KEY`, and `ADMIN_EMAIL` / `ADMIN_PASSWORD` (plus optional `CLIENT_*` for the demo client seed).
 
 3. **Database**
 
@@ -86,7 +88,7 @@ pip install -r requirements.txt
 python blog_agent.py
 ```
 
-Uses the same `DATABASE_URL` and `GEMINI_API_KEY` as the web app (loads `.env` from the **project root** via `config.py`).
+Uses **`DIRECT_URL`** if set, otherwise **`DATABASE_URL`**, and **`GEMINI_API_KEY`** (loads `.env` from the **project root** via `agents/config.py`, same rule as Roar Data’s `seo-agent`).
 
 ## Scripts
 

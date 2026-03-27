@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { generateBlogWithGemini } from "@/lib/gemini-blog";
 import type { Prisma } from "@prisma/client";
+import { hasGrowthFeatures } from "@/lib/plan-access";
+import { blogBodyExcerptForImagen } from "@/lib/blog-body-excerpt";
+import { blogCoverUsesStockOnly } from "@/lib/creative-image-mode";
+import { buildBlogImagenPrompt } from "@/lib/content-imagen-prompts";
+import { generateImageDataUrl } from "@/lib/gemini-imagen";
+import { pickBlogHeroPath } from "@/lib/stock-creative-images";
 
 function startOfWeek(d: Date) {
   const x = new Date(d);
@@ -21,26 +27,52 @@ export async function countBlogsThisWeek(userId: string) {
   });
 }
 
-export async function createBlogForUser(userId: string) {
+export async function createBlogForUser(
+  userId: string,
+  options?: { bypassWeeklyCap?: boolean }
+) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
   const sub = await prisma.subscription.findFirst({
     where: {
       userId,
-      plan: "SEO_CONTENT",
       status: "ACTIVE",
     },
     orderBy: { createdAt: "desc" },
   });
-  if (!sub) throw new Error("No active SEO_CONTENT subscription");
+  if (!sub || !hasGrowthFeatures(sub.plan)) {
+    throw new Error("No active Growth or Elite subscription (blogs not included on Starter)");
+  }
+  if (sub.blogsPerWeek <= 0) throw new Error("This plan has no weekly blog quota");
 
-  const used = await countBlogsThisWeek(userId);
-  if (used >= sub.blogsPerWeek) {
-    throw new Error(`Weekly blog limit reached (${sub.blogsPerWeek})`);
+  if (!options?.bypassWeeklyCap) {
+    const used = await countBlogsThisWeek(userId);
+    if (used >= sub.blogsPerWeek) {
+      throw new Error(`Weekly blog limit reached (${sub.blogsPerWeek})`);
+    }
   }
 
   const gen = await generateBlogWithGemini(user);
+  const fallbackCover = pickBlogHeroPath(gen.title, gen.slug, user.industry);
+  let coverImageUrl = fallbackCover;
+  if (!blogCoverUsesStockOnly()) {
+    const imagenPrompt = buildBlogImagenPrompt({
+      title: gen.title,
+      summary: gen.summary,
+      metaTitle: gen.metaTitle,
+      metaDescription: gen.metaDescription,
+      coverImagePrompt: gen.coverImagePrompt,
+      industry: user.industry,
+      businessName: user.businessName,
+      bodyExcerpt: blogBodyExcerptForImagen(gen.body),
+    });
+    try {
+      coverImageUrl = await generateImageDataUrl({ prompt: imagenPrompt, aspectRatio: "16:9" });
+    } catch {
+      /* Imagen may require billing; keep topic fallback */
+    }
+  }
   let slug = gen.slug;
   let attempt = 0;
   while (attempt < 5) {
@@ -54,6 +86,8 @@ export async function createBlogForUser(userId: string) {
           body: gen.body as unknown as Prisma.InputJsonValue,
           metaTitle: gen.metaTitle,
           metaDescription: gen.metaDescription,
+          coverImageUrl,
+          coverImagePrompt: gen.coverImagePrompt ?? null,
           status: "GENERATED",
         },
       });

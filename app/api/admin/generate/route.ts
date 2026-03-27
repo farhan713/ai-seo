@@ -13,9 +13,10 @@ export async function POST(req: Request) {
   if (!userId) {
     return NextResponse.json({ error: "userId required" }, { status: 400 });
   }
+  const force = Boolean(body.force);
 
   try {
-    const blog = await createBlogForUser(userId);
+    const blog = await createBlogForUser(userId, { bypassWeeklyCap: force });
     return NextResponse.json(blog);
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Generation failed";

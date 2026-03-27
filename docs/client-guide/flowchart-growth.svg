@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 1040" width="640" height="1040" role="img" aria-labelledby="title desc">
+  <title id="title">Growth plan - client journey</title>
+  <desc id="desc">Flowchart including Starter tools plus blogs and backlinks</desc>
+  <defs>
+    <marker id="arrowG" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#0ea5e9"/>
+    </marker>
+    <linearGradient id="boxGradG" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f9ff"/>
+      <stop offset="100%" style="stop-color:#e0f2fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="1040" fill="#ffffff"/>
+  <text x="320" y="34" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Growth plan (Rs 899/mo) - your journey</text>
+  <text x="320" y="54" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#64748b">Everything in Starter, plus content &amp; backlinks</text>
+  <ellipse cx="320" cy="88" rx="88" ry="22" fill="#0ea5e9" opacity="0.15" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="320" y="94" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0369a1">Start</text>
+  <line x1="320" y1="110" x2="320" y2="128" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowG)"/>
+  <rect x="200" y="130" width="240" height="44" rx="8" fill="url(#boxGradG)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="320" y="156" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Register &amp; log in</text>
+  <line x1="320" y1="174" x2="320" y2="192" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowG)"/>
+  <rect x="160" y="194" width="320" height="52" rx="8" fill="url(#boxGradG)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="320" y="216" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Business profile</text>
+  <text x="320" y="232" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#475569">Presets power audits &amp; blog angles</text>
+  <line x1="320" y1="246" x2="320" y2="264" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowG)"/>
+  <rect x="80" y="266" width="480" height="40" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="320" y="290" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#92400e">Starter tools (sidebar): Audit � Crawl � Search performance � Keywords (up to 50)</text>
+  <line x1="320" y1="306" x2="320" y2="324" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arrowG)"/>
+  <text x="320" y="348" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#5b21b6">Growth-only tools</text>
+  <line x1="320" y1="356" x2="220" y2="388" stroke="#a78bfa" stroke-width="1.5"/>
+  <line x1="320" y1="356" x2="420" y2="388" stroke="#a78bfa" stroke-width="1.5"/>
+  <rect x="130" y="390" width="180" height="88" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="220" y="418" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#4c1d95">Blogs</text>
+  <text x="220" y="438" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#5b21b6">AI articles for your site</text>
+  <text x="220" y="452" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#5b21b6">Weekly limit set on your plan</text>
+  <text x="220" y="466" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="8" fill="#6d28d9">Generated from admin / your brief</text>
+  <rect x="330" y="390" width="180" height="88" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="420" y="418" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#4c1d95">Backlinks</text>
+  <text x="420" y="438" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#5b21b6">Directory checklist</text>
+  <text x="420" y="452" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#5b21b6">Track submitted / verified</text>
+  <text x="420" y="466" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="8" fill="#6d28d9">New batches unlock over time</text>
+  <line x1="220" y1="478" x2="320" y2="520" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="420" y1="478" x2="320" y2="520" stroke="#94a3b8" stroke-width="1.5"/>
+  <polygon points="320,510 328,522 312,522" fill="#0ea5e9"/>
+  <rect x="200" y="524" width="240" height="52" rx="8" fill="url(#boxGradG)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="320" y="546" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Overview dashboard</text>
+  <text x="320" y="562" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#475569">Blogs this week � backlink progress � audit summary</text>
+  <line x1="320" y1="576" x2="320" y2="596" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowG)"/>
+  <rect x="140" y="598" width="360" height="56" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+  <text x="320" y="620" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#065f46">Full loop: measure (audit + GSC) � publish (blogs) � build links (backlinks)</text>
+  <text x="320" y="638" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#047857">Keywords page shows GSC performance next to your tracked terms</text>
+  <line x1="320" y1="654" x2="320" y2="674" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowG)"/>
+  <rect x="180" y="676" width="280" height="44" rx="22" fill="#8b5cf6"/>
+  <text x="320" y="702" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#ffffff">Iterate weekly with your SEO plan</text>
+  <text x="320" y="748" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">Blog generation is typically triggered by your agency from the admin panel</text>
+  <text x="320" y="1008" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#94a3b8">AI SEO Tool - Client guide (Growth)</text>
+</svg>

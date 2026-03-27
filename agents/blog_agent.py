@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Cron orchestrator: for each client with an active SEO_CONTENT subscription,
+Cron orchestrator: for each client with an active Growth or Elite subscription,
 generate blogs up to their weekly cap using Gemini.
 """
 
@@ -19,7 +19,8 @@ from content_generator import generate_blog
 from publisher import (
     connect,
     count_blogs_this_week,
-    fetch_active_seo_users,
+    fetch_active_growth_users,
+    imagen_blog_cover_or_stock,
     insert_blog,
     monday_start_utc,
 )
@@ -29,7 +30,7 @@ def main() -> int:
     week_start = monday_start_utc()
     conn = connect()
     try:
-        users = fetch_active_seo_users(conn)
+        users = fetch_active_growth_users(conn)
         print(f"[blog_agent] {datetime.now(timezone.utc).isoformat()} active subscribers: {len(users)}")
         for row in users:
             uid = row["id"]
@@ -40,6 +41,17 @@ def main() -> int:
                 continue
             try:
                 payload = generate_blog(row)
+                cover = imagen_blog_cover_or_stock(
+                    payload["title"],
+                    payload["slug"],
+                    payload["summary"],
+                    payload["metaTitle"],
+                    payload["metaDescription"],
+                    payload.get("coverImagePrompt"),
+                    row.get("industry"),
+                    row.get("businessName"),
+                    payload.get("body"),
+                )
                 bid = insert_blog(
                     conn,
                     uid,
@@ -49,6 +61,8 @@ def main() -> int:
                     payload["body"],
                     payload["metaTitle"],
                     payload["metaDescription"],
+                    cover_image_url=cover,
+                    cover_image_prompt=payload.get("coverImagePrompt"),
                 )
                 print(f"  created blog id={bid} user={uid} slug={payload['slug']}")
             except Exception as e:

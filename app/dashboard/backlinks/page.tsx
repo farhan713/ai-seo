@@ -10,13 +10,17 @@ type Row = {
   status: string;
 };
 
+type SubPayload = { plan: string } | null;
+
 export default function BacklinksPage() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [sub, setSub] = useState<SubPayload | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   async function load() {
-    const res = await fetch("/api/backlinks");
-    if (res.ok) setRows(await res.json());
+    const [blRes, subRes] = await Promise.all([fetch("/api/backlinks"), fetch("/api/subscription")]);
+    if (blRes.ok) setRows(await blRes.json());
+    if (subRes.ok) setSub(await subRes.json());
     setLoading(false);
   }
 
@@ -37,6 +41,10 @@ export default function BacklinksPage() {
     return <div className="text-sm text-muted">Loading directories…</div>;
   }
 
+  const starterEmpty = rows.length === 0 && sub?.plan === "STARTER_499";
+  const growthEmpty =
+    rows.length === 0 && (sub?.plan === "GROWTH_899" || sub?.plan === "ELITE_1599");
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,6 +53,20 @@ export default function BacklinksPage() {
           Claim and update your business on these directories. Mark each when submitted or verified.
         </p>
       </div>
+
+      {starterEmpty ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          The directory checklist is part of Growth (₹899/mo) and Elite (₹1,599/mo). Your current plan focuses on site
+          audits. Upgrade in your account settings or ask your admin to change your subscription.
+        </p>
+      ) : null}
+
+      {growthEmpty ? (
+        <p className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          No tasks loaded yet. Refresh the page in a moment. If this persists, contact support so we can seed your
+          weekly batch of 10 directories.
+        </p>
+      ) : null}
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-card shadow-sm">
         <ul className="divide-y divide-slate-100">

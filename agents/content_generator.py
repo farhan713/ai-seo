@@ -30,7 +30,9 @@ def build_prompt(row: dict[str, Any]) -> str:
     url = row.get("businessUrl") or "not specified"
     desc = row.get("businessDescription") or "No extra description provided."
 
-    return f"""You are an expert SEO blog writer. Write one complete blog post for this business.
+    return f"""You are one combined expert: (1) a lead brand and digital designer with 15 years on editorial and campaign heroes, and (2) a principal SEO and web analytics lead with 20 years tying content to search intent and outcomes. Sound credible to both a creative director and a data-led marketer.
+
+Write one complete blog post for this business.
 
 Business name: {name}
 Industry: {industry}
@@ -47,17 +49,24 @@ Writing rules (strict):
 - Conversational, helpful tone. Write like you are talking to a smart friend.
 - Do not use em dashes (—) anywhere. Use commas or periods instead.
 - Do not use semicolons. Split into separate sentences.
-- No robotic filler. Be specific to this business and industry.
+- No robotic filler. Be specific to this business and industry. Use concrete examples or scenarios where they fit.
 - Structure the article with clear h2 sections, bullet lists where useful, and one callout box with a practical tip or warning.
 - Length: roughly 900 to 1400 words of readable body text across all blocks.
+
+Meta tags must be strong for Google CTR (analytics-minded):
+- metaTitle: 50 to 60 characters, primary keyword early, one benefit, no stuffing.
+- metaDescription: 140 to 155 characters, active voice, specific promise, soft CTA.
+
+coverImagePrompt: one paragraph 80 to 150 words. The app uses a static topic hero file, not an image API. Write a shoot-ready brief as a 15-year art director would: hero tied to the article, subject and environment, light direction and quality, lens and depth, palette and mood, composition and safe zones. No text, logos, or watermarks in frame. Photoreal or refined CGI only if it fits the industry.
 
 Output format: respond with JSON only, no markdown fences. Use this exact shape:
 {{
   "title": "string",
   "slug": "lowercase-kebab-case-slug",
   "summary": "one paragraph teaser under 220 characters",
-  "metaTitle": "under 60 chars, includes primary keyword",
-  "metaDescription": "under 155 chars, compelling",
+  "metaTitle": "50-60 chars, keyword-forward",
+  "metaDescription": "140-155 chars, CTR-focused",
+  "coverImagePrompt": "string, long visual description",
   "body": [
     {{ "type": "h2", "text": "Section heading" }},
     {{ "type": "p", "text": "Paragraph..." }},
@@ -93,8 +102,9 @@ def generate_blog(row: dict[str, Any]) -> dict[str, Any]:
     title = str(data.get("title") or "").strip()
     slug = _normalize_slug(str(data.get("slug") or ""))
     summary = str(data.get("summary") or "").strip()
-    meta_title = str(data.get("metaTitle") or title)[:70]
-    meta_desc = str(data.get("metaDescription") or summary)[:160]
+    meta_title = str(data.get("metaTitle") or title).strip()[:62]
+    meta_desc = str(data.get("metaDescription") or summary).strip()[:158]
+    cover_prompt = str(data.get("coverImagePrompt") or "").strip() or None
     body = data.get("body") or []
     if not title or not slug or not isinstance(body, list) or len(body) == 0:
         raise RuntimeError("Incomplete blog from Gemini")
@@ -104,5 +114,6 @@ def generate_blog(row: dict[str, Any]) -> dict[str, Any]:
         "summary": summary,
         "metaTitle": meta_title,
         "metaDescription": meta_desc,
+        "coverImagePrompt": cover_prompt,
         "body": body,
     }

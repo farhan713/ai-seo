@@ -4,10 +4,24 @@ import { useEffect, useState } from "react";
 
 type UserOpt = { id: string; name: string; email: string };
 
+type PlanKey = "STARTER_499" | "GROWTH_899" | "ELITE_1599";
+
+const PLAN_HELP: Record<PlanKey, string> = {
+  STARTER_499: "₹499 · Site audit (keywords, meta, on-page suggestions)",
+  GROWTH_899: "₹899 · Audit + 3 blogs/week with cover image + 10 backlinks/week (rolls after completion)",
+  ELITE_1599: "₹1,599 · Everything in Growth + daily social ad drafts (Meta posting needs app setup)",
+};
+
+function syncQuotas(plan: PlanKey) {
+  if (plan === "STARTER_499") return { blogsPerWeek: 0, backlinksPerMonth: 0 };
+  return { blogsPerWeek: 3, backlinksPerMonth: 10 };
+}
+
 export default function AdminSubscriptionsPage() {
   const [users, setUsers] = useState<UserOpt[]>([]);
   const [userId, setUserId] = useState("");
   const [subscriptionId, setSubscriptionId] = useState("");
+  const [plan, setPlan] = useState<PlanKey>("GROWTH_899");
   const [status, setStatus] = useState<"ACTIVE" | "PAUSED" | "CANCELLED">("ACTIVE");
   const [blogsPerWeek, setBlogsPerWeek] = useState(3);
   const [backlinksPerMonth, setBacklinksPerMonth] = useState(10);
@@ -18,13 +32,17 @@ export default function AdminSubscriptionsPage() {
     fetch("/api/admin/users")
       .then((r) => r.json())
       .then((data) => {
-        const list = (data as { id: string; name: string; email: string }[]).filter(
-          (u) => u.id
-        );
+        const list = (data as { id: string; name: string; email: string }[]).filter((u) => u.id);
         setUsers(list);
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const q = syncQuotas(plan);
+    setBlogsPerWeek(q.blogsPerWeek);
+    setBacklinksPerMonth(q.backlinksPerMonth);
+  }, [plan]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +58,7 @@ export default function AdminSubscriptionsPage() {
       body: JSON.stringify({
         userId,
         subscriptionId: subscriptionId || undefined,
-        plan: "SEO_CONTENT",
+        plan,
         status,
         blogsPerWeek,
         backlinksPerMonth,
@@ -61,7 +79,7 @@ export default function AdminSubscriptionsPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Subscriptions</h1>
         <p className="mt-1 text-sm text-muted">
-          Assign or update SEO_CONTENT plans. Leave subscription ID empty to create new.
+          Assign Starter, Growth, or Elite. Quotas default from the plan; you can override numbers below.
         </p>
       </div>
       <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-200 bg-card p-6 shadow-sm">
@@ -81,6 +99,19 @@ export default function AdminSubscriptionsPage() {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">Plan</label>
+          <select
+            value={plan}
+            onChange={(e) => setPlan(e.target.value as PlanKey)}
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          >
+            <option value="STARTER_499">Starter · ₹499</option>
+            <option value="GROWTH_899">Growth · ₹899</option>
+            <option value="ELITE_1599">Elite · ₹1,599</option>
+          </select>
+          <p className="mt-1 text-xs text-muted">{PLAN_HELP[plan]}</p>
         </div>
         <div>
           <label className="text-sm font-medium text-slate-700">Existing subscription ID (optional)</label>
@@ -108,7 +139,7 @@ export default function AdminSubscriptionsPage() {
             <label className="text-sm font-medium text-slate-700">Blogs / week</label>
             <input
               type="number"
-              min={1}
+              min={0}
               max={14}
               value={blogsPerWeek}
               onChange={(e) => setBlogsPerWeek(Number(e.target.value))}
@@ -116,10 +147,10 @@ export default function AdminSubscriptionsPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700">Backlinks / month</label>
+            <label className="text-sm font-medium text-slate-700">Backlinks / month cap</label>
             <input
               type="number"
-              min={1}
+              min={0}
               max={100}
               value={backlinksPerMonth}
               onChange={(e) => setBacklinksPerMonth(Number(e.target.value))}

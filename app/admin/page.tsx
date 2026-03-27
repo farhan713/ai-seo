@@ -6,7 +6,7 @@ export default async function AdminHome() {
 
   const [totalUsers, activeSubs, blogsToday] = await Promise.all([
     prisma.user.count({ where: { role: "CLIENT" } }),
-    prisma.subscription.count({ where: { status: "ACTIVE", plan: "SEO_CONTENT" } }),
+    prisma.subscription.count({ where: { status: "ACTIVE" } }),
     prisma.blog.count({ where: { generatedAt: { gte: startOfDay } } }),
   ]);
 
