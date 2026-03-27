@@ -29,6 +29,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const guideDir = path.join(root, "docs", "client-guide");
 
+/** Full table width in twips (DXA). ~6.5in content; Pages/Word both respect this (pct "25%" in docx is invalid OOXML). */
+const TABLE_TOTAL_DXA = 9360;
+
 async function svgToImageRun(svgFile, maxWidth = 520) {
   const svgPath = path.join(guideDir, svgFile);
   const buf = await sharp(svgPath).resize({ width: maxWidth }).png().toBuffer();
@@ -83,7 +86,14 @@ function bullet(text) {
   });
 }
 
-function cell(text, header = false, size = 20) {
+function columnWidthsEqual(nCols) {
+  const base = Math.floor(TABLE_TOTAL_DXA / nCols);
+  const widths = Array.from({ length: nCols }, () => base);
+  widths[nCols - 1] += TABLE_TOTAL_DXA - base * nCols;
+  return widths;
+}
+
+function cell(text, header = false, size = 20, widthDxa) {
   return new TableCell({
     borders: {
       top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
@@ -91,7 +101,7 @@ function cell(text, header = false, size = 20) {
       left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
       right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
     },
-    width: { size: 25, type: WidthType.PERCENTAGE },
+    width: { size: widthDxa, type: WidthType.DXA },
     children: [
       new Paragraph({
         children: [new TextRun({ text: String(text), bold: header, size: header ? 21 : size })],
@@ -101,11 +111,19 @@ function cell(text, header = false, size = 20) {
 }
 
 function tableFromRows(headerRow, dataRows) {
+  const widths = columnWidthsEqual(headerRow.length);
   return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: TABLE_TOTAL_DXA, type: WidthType.DXA },
     rows: [
-      new TableRow({ children: headerRow.map((h, i) => cell(h, true)) }),
-      ...dataRows.map((r) => new TableRow({ children: r.map((c) => cell(c, false)) })),
+      new TableRow({
+        children: headerRow.map((h, i) => cell(h, true, 20, widths[i])),
+      }),
+      ...dataRows.map(
+        (r) =>
+          new TableRow({
+            children: r.map((c, i) => cell(c, false, 20, widths[i])),
+          })
+      ),
     ],
   });
 }
@@ -401,15 +419,19 @@ async function buildEliteGuide(imgElite) {
   await writeDoc("User-Guide-Elite.docx", children);
 }
 
+/** # | Area | Steps | Pass criteria */
+const QA_FOUR_COL_WIDTHS = [720, 1440, 3600, 3600];
+
 function qaTable4Col(headers, rows) {
+  const w = QA_FOUR_COL_WIDTHS;
   return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: TABLE_TOTAL_DXA, type: WidthType.DXA },
     rows: [
-      new TableRow({ children: headers.map((h) => cell(h, true, 18)) }),
+      new TableRow({ children: headers.map((h, i) => cell(h, true, 18, w[i])) }),
       ...rows.map(
         (r) =>
           new TableRow({
-            children: r.map((c) => cell(c, false, 18)),
+            children: r.map((c, i) => cell(c, false, 18, w[i])),
           })
       ),
     ],

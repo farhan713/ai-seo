@@ -1,6 +1,17 @@
 import type { SiteAudit } from "@prisma/client";
 import { isLighthouseDualBundle, isLighthouseSnapshot } from "@/lib/pagespeed-lighthouse";
 
+/** Prisma returns Date; JSON/API + client props use ISO strings. */
+export function auditCreatedAtToIso(createdAt: unknown): string | null {
+  if (createdAt == null) return null;
+  if (createdAt instanceof Date) return createdAt.toISOString();
+  if (typeof createdAt === "string") {
+    const d = new Date(createdAt);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
+  return null;
+}
+
 export type LabScoreSet = {
   performance: number | null;
   seo: number | null;
@@ -62,8 +73,8 @@ export function buildAuditProgressCompare(first: SiteAudit | null, latest: SiteA
   if (!first || !latest || first.id === latest.id) {
     return {
       hasComparison: false,
-      firstAt: first?.createdAt.toISOString() ?? null,
-      latestAt: latest?.createdAt.toISOString() ?? null,
+      firstAt: auditCreatedAtToIso(first?.createdAt),
+      latestAt: auditCreatedAtToIso(latest?.createdAt),
       lighthouseFirst: first ? lighthouseScoresFromPayload(first.lighthouse, true) : null,
       lighthouseLatest: latest ? lighthouseScoresFromPayload(latest.lighthouse, true) : null,
       opportunityFirst: first ? opportunityIndexFromDeliverables(first.deliverables) : null,
@@ -90,8 +101,8 @@ export function buildAuditProgressCompare(first: SiteAudit | null, latest: SiteA
 
   return {
     hasComparison: true,
-    firstAt: first.createdAt.toISOString(),
-    latestAt: latest.createdAt.toISOString(),
+    firstAt: auditCreatedAtToIso(first.createdAt),
+    latestAt: auditCreatedAtToIso(latest.createdAt),
     lighthouseFirst,
     lighthouseLatest,
     opportunityFirst,

@@ -1,0 +1,226 @@
+AI SEO TOOL — FULL PRODUCT QA (MANUAL TEST MATRIX)
+===================================================
+
+Use this list after a production build passes. Log in as each type of user and
+check off scenarios. You need a working database, auth, and where noted
+Gemini, Google OAuth, Resend, etc.
+
+If you use the default prisma seed, example accounts may be:
+
+  Starter client: groottechnologies@guest.seoapp  (password from seed / operator)
+  Growth client:  roardata@guest.seoapp
+  Elite client:   oakwooduae@guest.seoapp
+  Admin:          email from ADMIN_EMAIL in server .env  → uses /admin routes
+
+If those users do not exist, create three clients in Admin → Users and assign
+plans STARTER_499, GROWTH_899, ELITE_1599.
+
+
+SECTION A — STARTER CLIENT (MUST WORK)
+--------------------------------------
+
+S1 — Login
+  Steps: Open /login and sign in.
+  Pass when: You land on /dashboard.
+
+S2 — Overview
+  Steps: Open Overview from the dashboard.
+  Pass when: Growth score shows if audits exist; sidebar matches Starter (no Blogs,
+  Web analytics, Campaign ideas for a strict Starter nav).
+
+S3 — Business profile
+  Steps: Edit vertical, goal, URL, keywords, internal links JSON; save.
+  Pass when: Save works; tooltips show on API key fields.
+
+S4 — Bring your own keys (optional)
+  Steps: Add or clear Gemini or PageSpeed key in profile; save; run audit.
+  Pass when: Audit still works with server key or user key.
+
+S5 — Local SEO toggle
+  Steps: Toggle local SEO pack; save; refresh page.
+  Pass when: Setting stays as you left it.
+
+S6 — Site audit
+  Steps: Run audit on the business website URL.
+  Pass when: You see CTA, FAQ, lead blocks, and Lighthouse section where configured.
+
+S7 — Site crawl
+  Steps: Start a crawl.
+  Pass when: Completes or shows a clear error for a bad URL.
+
+S8 — Search performance
+  Steps: Connect Google if OAuth is set up on the server.
+  Pass when: Sync works or you get a clear error.
+
+S9 — Keywords
+  Steps: Add keyword phrases (and export if the UI offers it).
+  Pass when: Hard cap of 10 phrases is enforced.
+
+S10 — Content calendar
+  Steps: Add two items, then try to add a third.
+  Pass when: Third is blocked or returns 403 (Starter cap is 2).
+
+S11 — On-page checklist
+  Steps: Pick a URL; toggle checklist items; reload.
+  Pass when: Checklist state persists.
+
+S12 — Competitors
+  Steps: Add one competitor URL; refresh snapshot.
+  Pass when: Only one allowed; cannot add your own domain.
+
+S13 — Social post pack from audit
+  Steps: Generate captions from an audit run.
+  Pass when: LinkedIn-only captions on Starter.
+
+S14 — Share report
+  Steps: Create a share link; open /r/[token] in a private window; revoke.
+  Pass when: Public page is read-only; revoke stops access.
+
+S15 — Blogs URL (Starter)
+  Steps: Open /dashboard/blogs directly (may not be in sidebar).
+  Pass when: Page may load empty; generation remains Growth+ in API.
+
+S16 — Campaign ideas (negative)
+  Steps: Open /dashboard/campaign-ideas as Starter.
+  Pass when: Redirected away (e.g. to dashboard).
+
+S17 — Analytics URL (Starter)
+  Steps: Open /dashboard/analytics as Starter.
+  Pass when: Upgrade message; no full GA4 sync for Starter.
+
+
+SECTION B — GROWTH CLIENT
+-------------------------
+
+G1 — Navigation
+  Steps: Open sidebar.
+  Pass when: Blogs, Backlinks, Web analytics, Campaign ideas are present.
+
+G2 — Blogs
+  Steps: Open list, open a draft, generate if available.
+  Pass when: Content reflects business presets.
+
+G3 — Social pack on blog
+  Steps: Generate social post pack on a blog post.
+  Pass when: LinkedIn, Instagram, and Facebook sections.
+
+G4 — Backlinks
+  Steps: View checklist; mark items.
+  Pass when: Progress persists.
+
+G5 — Calendar
+  Steps: Add many calendar items.
+  Pass when: Well above Starter cap (up to plan limit, e.g. 500).
+
+G6 — Keywords
+  Steps: Add phrases up to limit.
+  Pass when: Cap of 50 enforced.
+
+G7 — Competitors
+  Steps: Add three URLs, try a fourth.
+  Pass when: Fourth rejected.
+
+G8 — GA4
+  Steps: Open /dashboard/analytics; connect; enter Property ID; sync.
+  Pass when: Flow completes or clear mis-configuration message.
+
+G9 — Campaign ideas
+  Steps: Optional focus text; generate.
+  Pass when: Four ideas returned; no “Create draft” button on Growth.
+
+G10 — Monthly email
+  Steps: Business profile — monthly email opt-in.
+  Pass when: Checkbox visible; save works (real send needs Resend).
+
+G11 — Social ads (negative)
+  Steps: Open /dashboard/social as Growth.
+  Pass when: Elite-only message or redirect.
+
+G12 — Audit
+  Steps: Run site audit.
+  Pass when: No “Ad creative angles” section on Growth.
+
+
+SECTION C — ELITE CLIENT
+--------------------------
+
+E1 — Navigation
+  Steps: Check sidebar.
+  Pass when: Social ads entry present.
+
+E2 — Keywords
+  Steps: Add many keywords.
+  Pass when: Cap of 100 enforced.
+
+E3 — Competitors
+  Steps: Add five URLs, try a sixth.
+  Pass when: Sixth rejected.
+
+E4 — Site audit
+  Steps: Run audit.
+  Pass when: Ad creative angles section when deliverables include it.
+
+E5 — Social ads
+  Steps: Save Meta JSON (test values if allowed).
+  Pass when: Save OK; list loads.
+
+E6 — Campaign to draft
+  Steps: Generate ideas → Create draft in Social ads.
+  Pass when: Today’s SocialAd row updates; visible under Social ads.
+
+E7 — Social draft UI
+  Steps: Copy caption and image area.
+  Pass when: UI behaves normally.
+
+E8 — Monthly email
+  Steps: In staging with cron + Resend.
+  Pass when: Elite can receive PDF attachment when operator configured it.
+
+
+SECTION D — ADMIN USER
+----------------------
+
+A1 — Login
+  Steps: Sign in with admin credentials.
+  Pass when: Redirect to /admin.
+
+A2 — Users
+  Steps: List users; open one user.
+  Pass when: Edit flows work as designed.
+
+A3 — Subscriptions
+  Steps: Assign or change plan for a client.
+  Pass when: Client sidebar/features update on next load.
+
+A4 — Generate
+  Steps: Trigger blog / audit / social draft for a user from admin tools.
+  Pass when: Completes or shows clear API error.
+
+A5 — Negative
+  Steps: Open /dashboard as admin.
+  Pass when: Redirect away from client dashboard.
+
+
+SECTION E — CROSS-CUTTING
+-------------------------
+
+X1 — Auth
+  Steps: Log out or wait for session expiry; try dashboard.
+  Pass when: Dashboard not accessible without login.
+
+X2 — Register
+  Steps: Create a new account.
+  Pass when: Can complete profile; plan may be unset until admin assigns.
+
+X3 — Build
+  Steps: Run npm run build in the repo.
+  Pass when: No TypeScript errors.
+
+
+SECTION F — OPTIONAL INTEGRATIONS (STAGING)
+-------------------------------------------
+
+I1 — Google OAuth: Search Console + GA4 redirect URIs correct in Google Cloud.
+I2 — Gemini: powers audits, blogs, campaign ideas, social copy.
+I3 — PageSpeed: Lighthouse scores inside audit.
+I4 — Resend + cron: monthly report email.

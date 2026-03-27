@@ -19,13 +19,18 @@ export function CampaignIdeasClient({
 }) {
   const [loading, setLoading] = useState(false);
   const [draftingKey, setDraftingKey] = useState<string | null>(null);
-  const [meta, setMeta] = useState<{ date: string; weekday: string; at: string } | null>(null);
+  const [meta, setMeta] = useState<{
+    date: string;
+    weekday: string;
+    at: string;
+    fromCache: boolean;
+  } | null>(null);
   const [ideas, setIdeas] = useState<IdeaRow[]>([]);
   const [err, setErr] = useState("");
   const [draftMsg, setDraftMsg] = useState("");
   const [focusText, setFocusText] = useState("");
 
-  async function generate() {
+  async function generate(forceRefresh = false) {
     setErr("");
     setDraftMsg("");
     setLoading(true);
@@ -33,7 +38,7 @@ export function CampaignIdeasClient({
       const res = await fetch("/api/campaign-ideas/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ focus: focusText }),
+        body: JSON.stringify({ focus: focusText, forceRefresh }),
       });
       const j = (await res.json().catch(() => ({}))) as {
         error?: string;
@@ -41,6 +46,7 @@ export function CampaignIdeasClient({
         calendarDateLabel?: string;
         weekdayName?: string;
         generatedAt?: string;
+        fromCache?: boolean;
       };
       if (!res.ok) {
         setErr(j.error || "Could not generate ideas");
@@ -51,7 +57,12 @@ export function CampaignIdeasClient({
       setIdeas(Array.isArray(j.ideas) ? j.ideas : []);
       setMeta(
         j.calendarDateLabel && j.weekdayName && j.generatedAt
-          ? { date: j.calendarDateLabel, weekday: j.weekdayName, at: j.generatedAt }
+          ? {
+              date: j.calendarDateLabel,
+              weekday: j.weekdayName,
+              at: j.generatedAt,
+              fromCache: j.fromCache === true,
+            }
           : null
       );
     } finally {
@@ -102,20 +113,39 @@ export function CampaignIdeasClient({
           />
         </label>
         <p className="mt-1 text-xs text-muted">Up to 2,000 characters. Ideas will try to align with what you type.</p>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={() => void generate()}
-          className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {loading ? "Generating…" : "Get today’s campaign ideas"}
-        </button>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void generate(false)}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {loading ? "Loading…" : "Get today’s campaign ideas"}
+          </button>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void generate(true)}
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-60"
+          >
+            Regenerate with AI
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-muted">
+          First run today calls Gemini; repeat clicks reuse the saved set until tomorrow (same optional direction). Use
+          &quot;Regenerate with AI&quot; for a fresh Gemini run.
+        </p>
         {err ? <p className="mt-3 text-sm text-red-700">{err}</p> : null}
         {draftMsg ? <p className="mt-3 text-sm text-emerald-800">{draftMsg}</p> : null}
       </div>
 
       {meta ? (
         <p className="text-xs text-muted">
+          {meta.fromCache ? (
+            <span className="mr-2 rounded bg-emerald-100 px-2 py-0.5 font-medium text-emerald-900">
+              Saved today
+            </span>
+          ) : null}
           Generated for {meta.weekday}, {meta.date} (IST calendar context).{" "}
           {new Date(meta.at).toLocaleString()}
         </p>

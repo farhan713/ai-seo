@@ -27,6 +27,18 @@ const root = path.join(__dirname, "..");
 const guideDir = path.join(root, "docs", "client-guide");
 const outPath = path.join(guideDir, "Client-Product-Guide.docx");
 
+/** Twip width for full table (~6.5in). Avoid WidthType.PERCENTAGE — docx emits invalid w:w="25%" for Pages. */
+const TABLE_TOTAL_DXA = 9360;
+
+function columnWidthsEqual(nCols) {
+  const base = Math.floor(TABLE_TOTAL_DXA / nCols);
+  const widths = Array.from({ length: nCols }, () => base);
+  widths[nCols - 1] += TABLE_TOTAL_DXA - base * nCols;
+  return widths;
+}
+
+const PLAN_COMPARE_COL_WIDTHS = columnWidthsEqual(4);
+
 async function svgToImageRun(svgFile, maxWidth = 560) {
   const svgPath = path.join(guideDir, svgFile);
   const buf = await sharp(svgPath).resize({ width: maxWidth }).png().toBuffer();
@@ -71,7 +83,7 @@ function h3(text) {
   });
 }
 
-function cell(text, header = false) {
+function cell(text, header = false, colIndex = 0) {
   return new TableCell({
     borders: {
       top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
@@ -79,7 +91,7 @@ function cell(text, header = false) {
       left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
       right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
     },
-    width: { size: 22, type: WidthType.PERCENTAGE },
+    width: { size: PLAN_COMPARE_COL_WIDTHS[colIndex], type: WidthType.DXA },
     children: [
       new Paragraph({
         children: [
@@ -91,6 +103,12 @@ function cell(text, header = false) {
         ],
       }),
     ],
+  });
+}
+
+function tableRow4(texts, header = false) {
+  return new TableRow({
+    children: texts.map((t, i) => cell(t, header, i)),
   });
 }
 
@@ -132,138 +150,43 @@ async function main() {
 
           h1("2. Plan comparison"),
           new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: TABLE_TOTAL_DXA, type: WidthType.DXA },
             rows: [
-              new TableRow({
-                children: [
-                  cell("Capability", true),
-                  cell("Starter ₹499", true),
-                  cell("Growth ₹899", true),
-                  cell("Elite ₹1,599", true),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Dashboard & business profile"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Industry vertical & marketing goal presets"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [cell("Site audit (AI + Lighthouse)"), cell("Yes"), cell("Yes"), cell("Yes")],
-              }),
-              new TableRow({
-                children: [cell("Site crawl"), cell("Yes"), cell("Yes"), cell("Yes")],
-              }),
-              new TableRow({
-                children: [
-                  cell("Search performance (Google Search Console)"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Keywords & topics + GSC match"),
-                  cell("Up to 10"),
-                  cell("Up to 50"),
-                  cell("Up to 100"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Audit progress (before / after)"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Unified growth score (Overview)"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Competitor homepage watchlist + diff"),
-                  cell("1 URL"),
-                  cell("3 URLs"),
-                  cell("5 URLs"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Lead magnet landing blocks (Site audit)"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Social proof lines (needs two audits)"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Monthly executive email (+ PDF Elite)"),
-                  cell("—"),
-                  cell("Opt-in"),
-                  cell("Opt-in + PDF"),
-                ],
-              }),
-              new TableRow({
-                children: [cell("AI blogs"), cell("—"), cell("Yes (weekly limit)"), cell("Yes")],
-              }),
-              new TableRow({
-                children: [cell("Backlink checklist"), cell("—"), cell("Yes"), cell("Yes")],
-              }),
-              new TableRow({
-                children: [
-                  cell("Content calendar (from pillars + manual)"),
-                  cell("Up to 2 items"),
-                  cell("Large capacity"),
-                  cell("Large capacity"),
-                ],
-              }),
-              new TableRow({
-                children: [cell("On-page checklist per URL"), cell("Yes"), cell("Yes"), cell("Yes")],
-              }),
-              new TableRow({
-                children: [
-                  cell("Social caption packs"),
-                  cell("Audit: LinkedIn only"),
-                  cell("Audit + blog: 3 platforms"),
-                  cell("Audit + blog: 3 platforms"),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  cell("Audit: CTA, FAQ, objections, lead capture"),
-                  cell("Yes"),
-                  cell("Yes"),
-                  cell("Yes"),
-                ],
-              }),
-              new TableRow({
-                children: [cell("Social ads (Meta/Instagram)"), cell("—"), cell("—"), cell("Yes")],
-              }),
+              tableRow4(["Capability", "Starter ₹499", "Growth ₹899", "Elite ₹1,599"], true),
+              tableRow4(["Dashboard & business profile", "Yes", "Yes", "Yes"]),
+              tableRow4(["Industry vertical & marketing goal presets", "Yes", "Yes", "Yes"]),
+              tableRow4(["Site audit (AI + Lighthouse)", "Yes", "Yes", "Yes"]),
+              tableRow4(["Site crawl", "Yes", "Yes", "Yes"]),
+              tableRow4([
+                "Search performance (Google Search Console)",
+                "Yes",
+                "Yes",
+                "Yes",
+              ]),
+              tableRow4(["Keywords & topics + GSC match", "Up to 10", "Up to 50", "Up to 100"]),
+              tableRow4(["Audit progress (before / after)", "Yes", "Yes", "Yes"]),
+              tableRow4(["Unified growth score (Overview)", "Yes", "Yes", "Yes"]),
+              tableRow4(["Competitor homepage watchlist + diff", "1 URL", "3 URLs", "5 URLs"]),
+              tableRow4(["Lead magnet landing blocks (Site audit)", "Yes", "Yes", "Yes"]),
+              tableRow4(["Social proof lines (needs two audits)", "Yes", "Yes", "Yes"]),
+              tableRow4(["Monthly executive email (+ PDF Elite)", "—", "Opt-in", "Opt-in + PDF"]),
+              tableRow4(["AI blogs", "—", "Yes (weekly limit)", "Yes"]),
+              tableRow4(["Backlink checklist", "—", "Yes", "Yes"]),
+              tableRow4([
+                "Content calendar (from pillars + manual)",
+                "Up to 2 items",
+                "Large capacity",
+                "Large capacity",
+              ]),
+              tableRow4(["On-page checklist per URL", "Yes", "Yes", "Yes"]),
+              tableRow4([
+                "Social caption packs",
+                "Audit: LinkedIn only",
+                "Audit + blog: 3 platforms",
+                "Audit + blog: 3 platforms",
+              ]),
+              tableRow4(["Audit: CTA, FAQ, objections, lead capture", "Yes", "Yes", "Yes"]),
+              tableRow4(["Social ads (Meta/Instagram)", "—", "—", "Yes"]),
             ],
           }),
           p("Your agency activates the plan. Search Console requires your Google account and a verified property."),

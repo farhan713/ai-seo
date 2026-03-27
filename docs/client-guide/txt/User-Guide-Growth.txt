@@ -1,0 +1,110 @@
+AI SEO TOOL — USER GUIDE (GROWTH PLAN, ₹899/MO)
+===============================================
+
+Growth includes everything in Starter, plus blogs, backlinks, GA4 analytics,
+campaign ideas, higher limits, three-platform social packs, and the option to
+opt in to a monthly executive email. Read User-Guide-Starter.txt first; this
+file only adds what is new or different on Growth.
+
+
+WHAT MAKES GROWTH USEFUL
+------------------------
+• Content engine: AI blog drafts plus LinkedIn, Instagram, and Facebook captions
+  from blogs and audits.
+• Measurement: Google Analytics 4 next to Search Console (sessions, users, top pages).
+• Scale: up to 50 keywords, 500 calendar items, 3 competitors.
+• Campaign ideas with optional free-text direction — but no “create draft in
+  Social ads” button; that is Elite only.
+
+
+SAME AS STARTER, BUT HIGHER LIMITS
+------------------------------------
+These screens work like Starter unless noted:
+
+• Keywords: up to 50 phrases.
+• Content calendar: up to 500 items.
+• Competitors: up to 3 URLs.
+• Site audit, crawl, Search Console, checklist, share report: same idea.
+
+Social pack from audit: all three platforms (LinkedIn, Instagram, Facebook).
+
+
+BLOGS
+-----
+What it does: long-form AI blog drafts using your business profile (vertical, goal, industry).
+
+How: open Blogs → create or open a draft → generate where the UI allows → edit in your CMS.
+
+Benefit: faster first drafts that match your positioning.
+
+Starter has no blog generator. Tip: after a post is ready, use Social post pack on the blog for three platforms.
+
+
+BACKLINKS
+---------
+What it does: checklist of backlink/directory-style tasks (your operator sets defaults).
+
+How: open Backlinks, work items, mark status as you submit or verify.
+
+Benefit: off-page work stays organized instead of random bookmarks.
+
+
+WEB ANALYTICS (GA4)
+-------------------
+What it does: Google OAuth (same app as Search Console, extra redirect and Analytics
+Data API). You enter your numeric GA4 Property ID, then Sync for recent totals and top pages.
+
+How:
+1. Connect Google (read-only analytics scope).
+2. In GA4: Admin → Property settings → copy Property ID.
+3. Paste in the app, save property, Sync now.
+
+Benefit: see traffic next to SEO queries.
+
+Starter users are sent away from this page. The ? tooltip by Property ID explains where to find the ID.
+
+
+CAMPAIGN IDEAS
+--------------
+What it does: optional “Your direction” text (up to 2,000 characters) plus one click
+sends your profile and today’s date context to the AI. You get four ideas: hook,
+format, rationale, trend/occasion, hashtags.
+
+Important: the model does not browse live news. Verify holidays and events before spending ad money.
+
+Benefit: breaks creative block with timely, business-specific angles.
+
+Growth vs Elite: on Growth you only see ideas. Elite adds “Create draft in Social ads.”
+
+
+MONTHLY EXECUTIVE EMAIL
+-----------------------
+If your operator enabled Resend and cron, you can opt in on Business profile to a
+monthly HTML summary email.
+
+Elite may add a PDF attachment when the server is configured for it.
+
+
+QUICK COMPARISON: GROWTH VS STARTER
+-----------------------------------
+• Blogs: no on Starter, yes on Growth.
+• Backlinks: no on Starter, yes on Growth.
+• GA4: no on Starter, yes on Growth.
+• Campaign ideas: no on Starter, yes on Growth (ideas only).
+• Calendar: 2 items Starter, 500 Growth.
+• Keywords: 10 Starter, 50 Growth.
+• Competitors: 1 Starter, 3 Growth.
+• Social pack: LinkedIn only Starter, three platforms Growth.
+• Monthly email opt-in: hidden Starter, visible Growth.
+
+
+TROUBLESHOOTING (GROWTH)
+------------------------
+• GA4 “not configured”: operator must add GA4 callback URI and enable Analytics Data API.
+• Campaign ideas error: Gemini key on server or BYOK.
+• No “Create draft” on ideas: normal on Growth — upgrade to Elite for that.
+
+
+NEXT STEPS
+----------
+Elite details: User-Guide-Elite.txt. QA rows G1–G12: QA-Full-Product-Test-Matrix.txt.

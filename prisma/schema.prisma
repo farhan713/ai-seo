@@ -141,6 +141,26 @@ model User {
   competitorWatches       CompetitorWatch[]
   ga4Connection           Ga4Connection?
   reportShares            ReportShare[]
+  campaignIdeaDailyCaches CampaignIdeaDailyCache[]
+}
+
+/// One cached Gemini run per user per UTC calendar day (matches API dayKey) and optional focus text.
+model CampaignIdeaDailyCache {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// YYYY-MM-DD — same as POST /api/campaign-ideas/generate calendarDateLabel (UTC).
+  dayKey              String   @db.VarChar(10)
+  /// sha256 hex of trimmed focus (empty = no optional direction).
+  focusKey            String   @db.VarChar(64)
+  ideasJson           Json
+  weekdayName         String   @db.VarChar(32)
+  sourceGeneratedAt   DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([userId, dayKey, focusKey])
+  @@index([userId, dayKey])
 }
 
 /// Phase 5 F7 — Google Analytics 4 (Data API) OAuth.

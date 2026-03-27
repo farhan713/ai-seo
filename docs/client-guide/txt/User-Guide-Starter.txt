@@ -1,0 +1,162 @@
+AI SEO TOOL — USER GUIDE (STARTER PLAN, ₹499/MO)
+================================================
+
+This guide explains every Starter feature in plain language: what it is, where
+to find it, how to use it, what you gain, and what you do not get on this tier.
+
+
+WHAT MAKES STARTER USEFUL
+-------------------------
+• Lowest-cost way to get AI site audits, Search Console alignment, keyword
+  tracking, and a small content calendar.
+• One competitor URL and two calendar slots keep scope focused; upgrade to
+  Growth when you need blogs, GA4, and more volume.
+• Social captions from audits are LinkedIn-only on Starter. Growth adds
+  Instagram and Facebook on blogs and audits.
+
+
+BEFORE YOU START
+----------------
+1. Register and log in — you land on Overview.
+2. Open Business profile (dashboard settings). Fill in:
+   • Business name, website, description — used everywhere the AI writes for you.
+   • Industry vertical and marketing goal — tune audits to your business type.
+   • Target keywords — feed the keyword tracker and prompts.
+   • Internal links (JSON) — optional list of important URLs for linking hints.
+3. Optional: add your own Gemini and PageSpeed API keys on the same page (? tooltips
+   explain how). If you skip them, the server uses its keys when configured.
+4. Optional: turn on Local SEO if you want Google Business Profile–style ideas
+   in audits (works best for local businesses).
+
+Why this matters: your first audit and suggestions will match your business
+instead of sounding generic.
+
+
+OVERVIEW (DASHBOARD HOME)
+-------------------------
+• Growth score appears when you have audit data — one number with a short
+  explanation of what changed.
+• Audit progress appears when you have two or more audits — compares early vs
+  latest technical signals.
+
+Use it: check weekly after new audits. Value: see “are we moving?” without spreadsheets.
+
+
+BUSINESS PROFILE
+----------------
+Same as “Before you start.” Every AI feature uses this context.
+
+Starter note: you will not see the monthly executive email opt-in (Growth/Elite only).
+
+
+SITE AUDIT
+----------
+What it does: loads your page, runs technical checks (including Lighthouse when
+keys exist), and asks the AI for structured help: keywords, meta, CTAs, FAQs,
+lead ideas, a social caption pack (LinkedIn only on Starter), and more.
+
+How: confirm website URL in profile → run the audit → copy sections into your CMS.
+
+Benefit: actionable, brand-specific output in minutes.
+
+Compared to other plans: Growth gets three platforms in the social pack from the
+same audit. Elite adds “ad creative angles” (paid ads copy) — not on Starter.
+
+
+SITE CRAWL
+----------
+What it does: follows links from your start URL (within app limits) and reports
+structural/technical notes.
+
+How: start a crawl; read results when finished.
+
+Benefit: catches issues beyond a single-page audit.
+
+
+SEARCH PERFORMANCE (GOOGLE SEARCH CONSOLE)
+------------------------------------------
+What it does: connects your Google account (OAuth) and syncs recent search query data.
+
+How: Connect Google → Sync when you want fresh data → review queries and clicks.
+
+Benefit: see what people actually search before you rewrite titles and content.
+
+Requires: your operator must configure Google OAuth on the server.
+
+
+KEYWORDS
+--------
+What it does: tracks phrases you care about; can line up with Search Console when connected.
+
+How: add phrases; export CSV if the app offers it.
+
+Starter limit: 10 tracked keywords maximum.
+
+Benefit: one priority list tied to real data when GSC is on.
+
+
+CONTENT CALENDAR
+----------------
+What it does: plan topics and dates; can be filled from audit “content pillar” ideas.
+
+How: add items, change status, delete when done.
+
+Starter limit: 2 items total — a third is blocked.
+
+Benefit: light planning without paying for Growth volume. Upgrade when you need a full calendar.
+
+
+ON-PAGE CHECKLIST
+-----------------
+What it does: per-URL checklist (titles, headings, schema, etc.) with saved checkboxes.
+
+How: enter URL → load checklist → tick items as you fix them.
+
+Benefit: repeatable QA so pages do not slip backward.
+
+
+COMPETITORS
+-----------
+What it does: save competitor URLs, take snapshots, refresh to see title/meta/H1 changes.
+
+How: add one URL (Starter cap). Use Refresh after they change their site.
+
+Benefit: quick competitive view without another tool.
+
+Rules: Starter allows 1 competitor. You cannot add your own domain.
+
+
+SHARE REPORT
+------------
+What it does: creates a time-limited public link (/r/...) anyone can open without
+logging in — snapshot-style summary for stakeholders.
+
+How: choose expiry → generate → copy link → revoke when done.
+
+Benefit: share progress without sharing passwords.
+
+Requires: production must set AUTH_URL or NEXT_PUBLIC_APP_URL so links are correct.
+
+
+WHAT STARTER DOES NOT INCLUDE
+-----------------------------
+• AI Blogs — Growth and up.
+• Backlinks checklist — Growth and up.
+• Web analytics (GA4) — Growth and up.
+• Campaign ideas — Growth and up.
+• Social ads page and Meta drafts — Elite only.
+• Ad creative angles inside site audit — Elite only.
+• Monthly executive email opt-in — Growth and up (not shown on Starter).
+
+
+TROUBLESHOOTING (STARTER)
+-------------------------
+• Audit AI errors: check server GEMINI_API_KEY or your Gemini key in Business profile.
+• No Lighthouse scores: PageSpeed API key on server or your BYOK key.
+• Search Console will not connect: OAuth redirect URI and API enabled in Google Cloud.
+• Calendar will not add a third item: expected on Starter — delete one or upgrade.
+
+
+NEXT STEPS
+----------
+If you upgrade, read User-Guide-Growth.txt. Testers: see QA-Full-Product-Test-Matrix.txt.

@@ -1,0 +1,95 @@
+AI SEO TOOL — USER GUIDE (ELITE PLAN, ₹1,599/MO)
+=================================================
+
+Elite is Growth plus paid social depth: a Social ads workspace, ad creative
+angles inside Site audit, one-click “campaign idea → draft,” and monthly email
+with PDF when your operator enables it. Read User-Guide-Starter.txt and
+User-Guide-Growth.txt for shared screens; this file focuses on Elite-only parts.
+
+
+WHAT MAKES ELITE USEFUL
+-----------------------
+• Audit and paid ads together: “Ad creative angles” (Meta-style and Google RSA-style
+  blocks) generated in the same audit that fixes SEO.
+• Social ads hub: store Meta credentials (JSON), view AI drafts with captions and
+  images (stock or Imagen when the server allows).
+• Campaign ideas → Create draft: second AI pass saves today’s row in Social ads
+  (same daily slot as admin-generated drafts).
+• Highest limits: 100 keywords, 5 competitors, full Growth feature set.
+
+
+ELITE LIMITS
+------------
+• Tracked keywords: up to 100.
+• Competitors: up to 5 URLs.
+
+
+SITE AUDIT — AD CREATIVE ANGLES
+-------------------------------
+What it does: after normal audit sections, Elite may show Ad creative angles with
+headline/body variants for Meta and Google RSA-style formats.
+
+How: copy lines into Ads Manager; respect character limits in the ad editor.
+
+Benefit: organic fixes and paid creative stay aligned.
+
+Not on Starter or Growth.
+
+
+SOCIAL ADS
+----------
+What it does:
+1. Credentials JSON — long-lived Facebook Page token and Instagram Business Account ID
+   (? tooltip outlines the token workflow).
+2. Recent drafts — daily SocialAd rows: caption pack (Instagram + Facebook sections),
+   optional AI image or stock fallback.
+
+How: get tokens via Meta Business Suite / Graph API (production needs proper app
+review — operator’s job) → paste JSON → Save → review drafts → copy to publish manually.
+
+Benefit: one place for creative and visuals tied to your brand.
+
+Growth clients do not see this page.
+
+
+CAMPAIGN IDEAS — CREATE DRAFT IN SOCIAL ADS
+-------------------------------------------
+What it does: on Campaign ideas, each card can run “Create draft in Social ads.” That:
+1. Builds a brief from the idea.
+2. Calls the AI with the same social ad copy stack used elsewhere.
+3. Updates the row for today’s date in Social ads (caption + image like the admin path).
+
+How: generate ideas → pick the best → Create draft → open Social ads to copy/publish.
+
+Note: one draft slot per day — a new Create draft replaces today’s row (same as admin “today’s draft”).
+
+Elite-only; Growth sees ideas without this button.
+
+
+MONTHLY EMAIL — PDF (ELITE)
+---------------------------
+When Resend, cron, and Elite PDF generation are configured, the monthly email can
+include a PDF attachment (Growth gets HTML only). Opt in on Business profile like Growth.
+
+
+FULL ELITE CHECKLIST (TRY ONCE)
+-------------------------------
+1. Business profile, optional BYOK keys, local SEO toggle.
+2. Site audit — confirm Ad creative angles section.
+3. Keywords (up to 100), competitors (up to 5), calendar, blogs, backlinks, GA4 sync.
+4. Campaign ideas with custom direction → Create draft → check Social ads.
+5. Share report link for a stakeholder.
+6. Save Meta credentials and review latest draft image/caption.
+
+
+TROUBLESHOOTING (ELITE)
+-----------------------
+• No ad angles: run a new audit; feature is gated to Elite in the API.
+• Create draft fails: Gemini (server or BYOK); confirm Elite plan active.
+• No Imagen image: server Gemini + Imagen; failures may fall back to stock art.
+• Posting not automatic: MVP may still expect you to copy/paste into Meta.
+
+
+RELATED
+-------
+QA rows E1–E8: QA-Full-Product-Test-Matrix.txt.

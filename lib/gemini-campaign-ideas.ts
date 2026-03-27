@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import type { User } from "@prisma/client";
 
 export type TrendCampaignIdea = {
@@ -18,6 +18,85 @@ function normalizeFormat(v: string): TrendCampaignIdea["format"] {
 
 const MAX_FOCUS_LEN = 2000;
 
+/** Structured output — reduces markdown / prose around JSON (especially with mixed model versions). */
+const CAMPAIGN_IDEAS_RESPONSE_SCHEMA = {
+  type: SchemaType.OBJECT,
+  required: ["ideas"],
+  properties: {
+    ideas: {
+      type: SchemaType.ARRAY,
+      minItems: 2,
+      maxItems: 6,
+      items: {
+        type: SchemaType.OBJECT,
+        required: [
+          "title",
+          "hook",
+          "format",
+          "rationale",
+          "trendOrOccasion",
+          "suggestedHashtags",
+        ],
+        properties: {
+          title: { type: SchemaType.STRING },
+          hook: { type: SchemaType.STRING },
+          format: { type: SchemaType.STRING },
+          rationale: { type: SchemaType.STRING },
+          trendOrOccasion: { type: SchemaType.STRING },
+          suggestedHashtags: { type: SchemaType.STRING },
+        },
+      },
+    },
+  },
+} as const;
+
+/**
+ * Gemini often returns valid JSON but wrapped in ```json fences, or with a short preamble.
+ * responseMimeType: application/json is not always honored across models/SDK versions.
+ */
+function parseCampaignIdeasResponse(raw: string): Record<string, unknown> {
+  let s = raw.trim();
+  if (!s) throw new Error("Gemini returned empty response for campaign ideas");
+
+  // Markdown code block (may be embedded after a short preamble)
+  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) s = fence[1].trim();
+
+  const tryParse = (chunk: string): Record<string, unknown> => {
+    const parsed: unknown = JSON.parse(chunk);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("Expected a JSON object with an ideas array");
+    }
+    return parsed as Record<string, unknown>;
+  };
+
+  try {
+    return tryParse(s);
+  } catch {
+    const start = s.indexOf("{");
+    const end = s.lastIndexOf("}");
+    if (start >= 0 && end > start) {
+      try {
+        return tryParse(s.slice(start, end + 1));
+      } catch {
+        // ignore; try double-encoded JSON string below
+      }
+    }
+  }
+
+  // Model occasionally returns a JSON string that contains the object (quoted JSON)
+  try {
+    const outer = JSON.parse(s.trim());
+    if (typeof outer === "string") {
+      return tryParse(outer);
+    }
+  } catch {
+    /* fall through */
+  }
+
+  throw new Error("Gemini returned non-JSON for campaign ideas");
+}
+
 export async function generateTrendCampaignIdeas(input: {
   user: Pick<User, "businessName" | "businessUrl" | "businessDescription" | "industry" | "industryVertical" | "marketingGoal">;
   calendarDateLabel: string;
@@ -25,16 +104,14 @@ export async function generateTrendCampaignIdeas(input: {
   geminiApiKey?: string | null;
   /** Optional client notes: sale, festival, product launch, audience, tone, etc. */
   optionalFocus?: string | null;
+  /** Dev/probe: inspect raw model text before JSON parse */
+  onRawResponse?: (text: string) => void;
 }): Promise<TrendCampaignIdea[]> {
   const apiKey = input.geminiApiKey?.trim() || process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set and no client Gemini key provided");
 
   const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    generationConfig: { responseMimeType: "application/json" },
-  });
 
   const focusRaw = input.optionalFocus?.trim() ?? "";
   const focusBlock =
@@ -82,27 +159,41 @@ Rules:
 - No em dashes. Straight ASCII apostrophes.
 - Ideas must be safe and professional (no controversial bait, no unverified claims).`;
 
+  const schemaRejected = (msg: string) =>
+    /responseSchema|response_schema|JSON schema|generationConfig|invalid value.*schema|unsupported.*schema/i.test(msg);
+
   let text = "";
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    try {
-      const result = await model.generateContent(prompt);
-      text = result.response.text();
-      break;
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      const retryable = msg.includes("503") || msg.includes("429") || msg.includes("UNAVAILABLE");
-      if (!retryable || attempt === 4) throw e;
-      await new Promise((r) => setTimeout(r, 1500 * attempt));
+  let useResponseSchema = true;
+  outer: while (true) {
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: useResponseSchema
+        ? {
+            responseMimeType: "application/json",
+            responseSchema: CAMPAIGN_IDEAS_RESPONSE_SCHEMA,
+          }
+        : { responseMimeType: "application/json" },
+    });
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      try {
+        const result = await model.generateContent(prompt);
+        text = result.response.text();
+        input.onRawResponse?.(text);
+        break outer;
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (useResponseSchema && schemaRejected(msg)) {
+          useResponseSchema = false;
+          continue outer;
+        }
+        const retryable = msg.includes("503") || msg.includes("429") || msg.includes("UNAVAILABLE");
+        if (!retryable || attempt === 4) throw e;
+        await new Promise((r) => setTimeout(r, 1500 * attempt));
+      }
     }
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw new Error("Gemini returned non-JSON for campaign ideas");
-  }
-  const o = parsed as Record<string, unknown>;
+  const o = parseCampaignIdeasResponse(text);
   const raw = o.ideas;
   if (!Array.isArray(raw) || raw.length === 0) {
     throw new Error("Invalid campaign ideas payload");

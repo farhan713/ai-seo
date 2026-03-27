@@ -1,0 +1,215 @@
+AI SEO TOOL — CLIENT PRODUCT GUIDE (PLAIN ENGLISH)
+==================================================
+
+Who this is for: business clients using the platform (not developers).
+
+What this document covers: how the product helps you, what each paid plan
+includes, step-by-step usage for Starter / Growth / Elite, how keyword
+suggestions work, who does what between you and your agency, and short
+definitions of terms. Updated March 2026.
+
+Visual flowcharts exist as separate files in the same client-guide folder:
+flowchart-starter.svg, flowchart-growth.svg, flowchart-elite.svg. Open those in
+a browser or image viewer; they are not embedded in this text file.
+
+
+1. WHAT THIS TOOL DOES (SIMPLE EXPLANATION)
+-------------------------------------------
+
+The AI SEO Tool helps you understand how your website is performing, see what
+people type into Google before they find you (when you connect Google Search
+Console), and track important keywords next to real clicks and rankings.
+
+It uses a “business profile” — your industry, goals, and keywords — so AI audits
+and suggestions sound like your company, not a generic template.
+
+Depending on your plan you may also get AI blog drafts, a backlink checklist,
+and on the top plan a social ads area for Meta/Instagram, usually with help
+from your agency.
+
+
+2. PLAN COMPARISON — WHAT EACH TIER INCLUDES
+--------------------------------------------
+
+All plans include:
+• Dashboard overview and business profile.
+• Industry vertical and marketing goal presets (they shape AI outputs).
+• Site audit (AI recommendations plus Lighthouse-style scores when configured).
+• Site crawl (multi-page, within app limits).
+• Search performance via Google Search Console (after you connect Google).
+• Keywords with optional match to Search Console data — limits differ by plan:
+  Starter up to 10, Growth up to 50, Elite up to 100.
+• Audit progress card comparing your first saved audit to your latest.
+• Unified growth score on Overview with a short breakdown.
+• Competitor homepage watchlist with snapshot diff:
+  Starter 1 URL, Growth 3, Elite 5.
+• Lead-magnet style blocks from the site audit.
+• Social proof lines (needs two audits with measurable movement).
+• On-page checklist per URL.
+• Site audit extras: CTA/forms, FAQ, objections, lead capture blocks.
+
+Monthly executive email:
+• Starter: not included.
+• Growth: opt-in, HTML summary (server needs email provider + cron).
+• Elite: opt-in, HTML plus optional PDF attachment when configured.
+
+AI blogs:
+• Starter: not included.
+• Growth: yes, with a weekly limit set on your subscription.
+• Elite: yes.
+
+Backlink directory checklist:
+• Starter: no.
+• Growth and Elite: yes.
+
+Content calendar:
+• Starter: up to 2 items.
+• Growth and Elite: large capacity (hundreds).
+
+Social caption packs:
+• Starter: from audit, LinkedIn only.
+• Growth and Elite: from audit and from blog posts — LinkedIn, Instagram, Facebook.
+
+Social ads (Meta / Instagram workflow):
+• Starter and Growth: not included.
+• Elite: included.
+
+Your agency turns plans on and may set blog/backlink limits. Search Console
+needs your Google account and a verified property for your site.
+
+
+3. STARTER PLAN — STEP BY STEP
+------------------------------
+
+For businesses that want audits, crawl, search queries, and keyword tracking
+without the full content and backlink bundle.
+
+Typical order of work:
+
+1) You get login details after the admin creates your account on Starter.
+
+2) Log in at the app URL.
+
+3) Business profile: enter website URL, business name, industry text, target
+   keywords (comma-separated), industry vertical, and marketing goal. Save.
+   This tunes the AI and keyword suggestions.
+
+4) Site audit: run on your main URL; read findings, Lighthouse categories, and
+   AI blocks. Run again later to compare (see Overview).
+
+5) Site crawl: optional broader health check from a start URL.
+
+6) Search performance: connect Google, pick the property that matches your site,
+   sync. You see roughly the last 28 days of queries (read-only access).
+
+7) Keywords: review suggested terms within your 10-keyword cap; edit or export.
+
+8) Overview: audit summary, audit progress (first vs latest), growth score.
+
+9) Competitors: add competitor homepages; refresh to see title/meta/H1 changes.
+
+10) Content calendar: add a few items or seed from audit pillars. Starter allows
+    only two items total.
+
+11) On-page checklist: enter URL, save checklist, tick tasks as you fix them.
+
+12) Audit extras: copy CTA, FAQ, objection, lead capture, lead-magnet blocks,
+    and social proof lines when you have enough audit history.
+
+13) Social captions from audit: generate; on Starter you get LinkedIn text only.
+
+
+4. GROWTH PLAN — EVERYTHING ABOVE, PLUS
+---------------------------------------
+
+9) Blogs: open Blogs; agency or automation may generate drafts. Stay within
+    your weekly blog limit shown on the dashboard.
+
+10) Backlinks: work the directory checklist; mark submitted/verified. Overview
+    may show batch progress.
+
+11) Keywords: up to 50; use Refresh suggestions after profile or GSC updates.
+
+12) Social post pack on a blog: generate LinkedIn, Instagram, Facebook from a post.
+
+13) Monthly executive email: opt in under Business profile if your operator
+    enabled it. Elite adds PDF on the same email when configured.
+
+
+5. ELITE PLAN — EVERYTHING ABOVE, PLUS
+--------------------------------------
+
+12) Social ads: connect Meta/Instagram credentials in the UI where allowed;
+    review drafts; publishing may still need extra Meta Business setup.
+
+13) Keywords: up to 100.
+
+14) Monthly email can include a one-page PDF brief for Elite when enabled.
+
+
+6. HOW AUTOMATIC KEYWORD SUGGESTIONS WORK
+-----------------------------------------
+
+• Suggestions come from: target keywords field, industry text, business name,
+  vertical label, and “content pillar” ideas from your latest site audit.
+
+• After Search Console syncs, top queries can fill remaining slots up to your plan cap.
+
+• New suggestions add rows; they do not blindly delete your edits. Refresh
+  suggestions merges new ideas up to the cap.
+
+• If you edit a keyword’s text and save, it is treated as yours (manual) so the
+  app keeps your wording in mind.
+
+
+7. ROLES — YOU VS AGENCY
+------------------------
+
+Plan and billing: you use what your plan includes; agency assigns the plan and
+may generate blogs or social drafts for you.
+
+Business data: you edit the business profile anytime; agency can change fields if you ask.
+
+Google Search Console: you connect your own Google account (read-only); agency may help verify the property.
+
+Audits and crawl: you run them and read results; agency may advise on fixes outside the app.
+
+
+8. PHASE 4 IDEAS IN ONE PARAGRAPH
+---------------------------------
+
+The growth score blends lab SEO, opportunity, momentum between audits, checklist
+(and blog cadence on Growth+), minus a small penalty for serious open issues.
+Competitors store homepage snapshots you can refresh. Lead-magnet and social
+proof text reuse audit output. The monthly email summarizes the dashboard; Elite
+can attach a PDF.
+
+
+9. PHASE 3 IDEAS IN ONE PARAGRAPH
+---------------------------------
+
+Calendar, on-page checklist, and social packs turn audits into weekly work.
+Extended audit blocks add CTA, FAQ, objection, and lead capture copy on every run.
+
+
+10. GLOSSARY
+------------
+
+Lighthouse / lab scores — Automated scores for performance, SEO, accessibility,
+and best practices from Google’s tooling pipeline inside the product.
+
+Search Console — Google’s view of queries that showed your site; we import
+recent aggregates after you authorize read-only access.
+
+Tracked keyword — A phrase you track; we try to match it to a Search Console
+query to show clicks, impressions, and average position.
+
+Before / after (audit progress) — Compares your earliest saved audit to your
+newest to show change over time.
+
+Growth score (version 1) — Weighted mix of latest lab SEO, opportunity, trajectory
+between audits, checklist completion, and (on Growth+) blog cadence, with a small
+deduction for unresolved high-severity findings.
+
+Competitor snapshot — Stored title, meta description, and H1 count from a
+competitor URL; refreshing replaces it and shows a diff from the previous capture.

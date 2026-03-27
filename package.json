@@ -25,6 +25,7 @@
     "backfill:meta": "tsx scripts/backfill-blog-meta.ts",
     "docs:client-guide-docx": "node scripts/generate-client-guide-docx.mjs",
     "docs:user-guides-docx": "node scripts/generate-user-guides-docx.mjs",
+    "probe:gemini-campaign": "tsx scripts/probe-gemini-campaign.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {
