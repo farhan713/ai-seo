@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { parseClientProvidedKeys } from "@/lib/client-keys";
+import { httpStatusForGeminiError, userFacingMessageFromGeminiError } from "@/lib/gemini-http";
 import { hasAuditAccess, hasGrowthFeatures, socialPostPackPlatforms } from "@/lib/plan-access";
 import { generateSocialPostPack } from "@/lib/social-post-pack-gemini";
 import { blockText, parseBlogBody } from "@/lib/blog-blocks";
@@ -48,9 +50,11 @@ export async function POST(req: Request) {
       industry: true,
       industryVertical: true,
       marketingGoal: true,
+      clientProvidedKeys: true,
     },
   });
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const keys = parseClientProvidedKeys(user.clientProvidedKeys);
 
   let title = "";
   let summary = "";
@@ -86,34 +90,42 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "blogId or auditId required" }, { status: 400 });
   }
 
-  const pack = await generateSocialPostPack({
-    businessName: user.businessName,
-    industry: user.industry,
-    industryVertical: user.industryVertical,
-    marketingGoal: user.marketingGoal,
-    sourceLabel,
-    title,
-    summary,
-    bodyExcerpt: excerpt,
-    platforms,
-  });
+  try {
+    const pack = await generateSocialPostPack({
+      businessName: user.businessName,
+      industry: user.industry,
+      industryVertical: user.industryVertical,
+      marketingGoal: user.marketingGoal,
+      sourceLabel,
+      title,
+      summary,
+      bodyExcerpt: excerpt,
+      platforms,
+      geminiApiKey: keys.geminiApiKey ?? null,
+    });
 
-  const row = await prisma.socialPostPack.create({
-    data: {
-      userId: session.user.id,
-      blogId: saveBlogId,
-      siteAuditId: saveAuditId,
-      linkedin: pack.linkedin || null,
-      instagram: pack.instagram || null,
-      facebook: pack.facebook || null,
-    },
-  });
+    const row = await prisma.socialPostPack.create({
+      data: {
+        userId: session.user.id,
+        blogId: saveBlogId,
+        siteAuditId: saveAuditId,
+        linkedin: pack.linkedin || null,
+        instagram: pack.instagram || null,
+        facebook: pack.facebook || null,
+      },
+    });
 
-  return NextResponse.json({
-    id: row.id,
-    linkedin: row.linkedin,
-    instagram: row.instagram,
-    facebook: row.facebook,
-    createdAt: row.createdAt.toISOString(),
-  });
+    return NextResponse.json({
+      id: row.id,
+      linkedin: row.linkedin,
+      instagram: row.instagram,
+      facebook: row.facebook,
+      createdAt: row.createdAt.toISOString(),
+    });
+  } catch (e) {
+    const raw = e instanceof Error ? e.message : "Generation failed";
+    const status = httpStatusForGeminiError(raw);
+    const error = userFacingMessageFromGeminiError(raw);
+    return NextResponse.json({ error }, { status });
+  }
 }

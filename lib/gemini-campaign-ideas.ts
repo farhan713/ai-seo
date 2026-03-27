@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType, type Schema } from "@google/generative-ai";
 import type { User } from "@prisma/client";
 
 export type TrendCampaignIdea = {
@@ -21,7 +21,7 @@ const MAX_FOCUS_LEN = 2000;
 /** Structured output — reduces markdown / prose around JSON (especially with mixed model versions). */
 const CAMPAIGN_IDEAS_RESPONSE_SCHEMA = {
   type: SchemaType.OBJECT,
-  required: ["ideas"],
+  required: ["ideas"] as string[],
   properties: {
     ideas: {
       type: SchemaType.ARRAY,
@@ -36,7 +36,7 @@ const CAMPAIGN_IDEAS_RESPONSE_SCHEMA = {
           "rationale",
           "trendOrOccasion",
           "suggestedHashtags",
-        ],
+        ] as string[],
         properties: {
           title: { type: SchemaType.STRING },
           hook: { type: SchemaType.STRING },
@@ -48,7 +48,7 @@ const CAMPAIGN_IDEAS_RESPONSE_SCHEMA = {
       },
     },
   },
-} as const;
+} as Schema;
 
 /**
  * Gemini often returns valid JSON but wrapped in ```json fences, or with a short preamble.
@@ -169,10 +169,10 @@ Rules:
       model: modelName,
       generationConfig: useResponseSchema
         ? {
-            responseMimeType: "application/json",
+            responseMimeType: "application/json" as const,
             responseSchema: CAMPAIGN_IDEAS_RESPONSE_SCHEMA,
           }
-        : { responseMimeType: "application/json" },
+        : { responseMimeType: "application/json" as const },
     });
     for (let attempt = 1; attempt <= 4; attempt++) {
       try {

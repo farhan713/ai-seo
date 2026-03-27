@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { hasTrendCampaignIdeas } from "@/lib/plan-access";
 import { parseClientProvidedKeys } from "@/lib/client-keys";
+import { httpStatusForGeminiError, userFacingMessageFromGeminiError } from "@/lib/gemini-http";
 import { generateTrendCampaignIdeas, type TrendCampaignIdea } from "@/lib/gemini-campaign-ideas";
 
 const MAX_FOCUS = 2000;
@@ -117,7 +118,9 @@ export async function POST(req: Request) {
       fromCache: false,
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Generation failed";
-    return NextResponse.json({ error: msg }, { status: 502 });
+    const raw = e instanceof Error ? e.message : "Generation failed";
+    const status = httpStatusForGeminiError(raw);
+    const error = userFacingMessageFromGeminiError(raw);
+    return NextResponse.json({ error }, { status });
   }
 }

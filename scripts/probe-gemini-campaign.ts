@@ -18,7 +18,7 @@ async function main() {
       businessDescription: "Premium furniture and interiors",
       industry: "Retail",
       industryVertical: "ECOMMERCE",
-      marketingGoal: "AWARENESS",
+      marketingGoal: "BRAND_AWARENESS",
     },
     calendarDateLabel: "2026-03-27",
     weekdayName: "Friday",

@@ -605,7 +605,8 @@ function SocialCaptionsFromAudit({ auditId }: { auditId: string }) {
     <div className="mt-10 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
       <p className="text-sm font-bold text-slate-900">Social post pack (from this audit)</p>
       <p className="mt-1 text-xs text-muted">
-        Starter: LinkedIn only. Growth/Elite: LinkedIn, Instagram, and Facebook. Requires GEMINI_API_KEY.
+        Starter: LinkedIn only. Growth/Elite: LinkedIn, Instagram, and Facebook. Uses server GEMINI_API_KEY or your Gemini key
+        in Business profile.
       </p>
       <button
         type="button"

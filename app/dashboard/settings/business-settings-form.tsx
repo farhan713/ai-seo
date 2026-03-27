@@ -94,7 +94,10 @@ export function BusinessSettingsForm({
       setMsg({ type: "err", text: j.error || "Save failed." });
       return;
     }
-    setMsg({ type: "ok", text: "Saved. New audits and blogs will use these presets." });
+    setMsg({
+      type: "ok",
+      text: "Saved. Profile, presets, and API keys are updated. Your Gemini key (if set) is used for audits, campaign ideas, and social packs.",
+    });
     setForm((f) => ({
       ...f,
       geminiApiKeyInput: "",
@@ -117,6 +120,110 @@ export function BusinessSettingsForm({
       {msg ? (
         <p className={`text-sm ${msg.type === "ok" ? "text-emerald-700" : "text-red-700"}`}>{msg.text}</p>
       ) : null}
+
+      <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-4 sm:px-5 sm:py-5">
+        <h2 className="text-base font-semibold text-slate-900">Your Gemini API key (per account)</h2>
+        <p className="mt-1 text-sm text-muted">
+          Each user can save their own Google AI Studio key. Audits, campaign ideas, social caption packs, and related
+          features use <strong className="text-slate-800">your key first</strong>, then fall back to the server key if you
+          leave this empty. That way your quota stays separate from other clients.
+        </p>
+        <div className="mt-4 space-y-4">
+          <div>
+            <label className="flex items-center gap-1 text-sm font-medium text-slate-700">
+              Gemini API key
+              <FieldTooltip
+                label="Create a Gemini API key"
+                steps={[
+                  "Open Google AI Studio: https://aistudio.google.com/apikey",
+                  "Sign in with the Google account that should own billing/quota.",
+                  "Click Create API key and choose or create a Google Cloud project.",
+                  "Copy the key and paste it below. Do not share it in chat or email.",
+                ]}
+              />
+            </label>
+            {initial.hasGeminiKey ? (
+              <p className="mt-1 text-xs text-emerald-800">
+                A key is saved on your account. Paste a new value below to replace it, or use Remove after saving with the
+                box checked.
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-muted">No personal key yet — the app will use the server key when configured.</p>
+            )}
+            <input
+              type="password"
+              autoComplete="off"
+              value={form.geminiApiKeyInput}
+              onChange={(e) => setForm((f) => ({ ...f, geminiApiKeyInput: e.target.value, removeGeminiKey: false }))}
+              placeholder="Paste your API key (stored only on your user account)"
+              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 font-mono text-sm"
+            />
+            {initial.hasGeminiKey ? (
+              <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={form.removeGeminiKey}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      removeGeminiKey: e.target.checked,
+                      geminiApiKeyInput: e.target.checked ? "" : f.geminiApiKeyInput,
+                    }))
+                  }
+                />
+                Remove my Gemini key (use server key only)
+              </label>
+            ) : null}
+          </div>
+          <div className="border-t border-slate-200/80 pt-4">
+            <p className="text-sm font-semibold text-slate-900">PageSpeed API key (optional)</p>
+            <p className="mt-1 text-xs text-muted">
+              Same idea: your own key for Lighthouse scores in site audits. Leave blank to use the server key.
+            </p>
+            <label className="mt-3 flex items-center gap-1 text-sm font-medium text-slate-700">
+              PageSpeed Insights API key
+              <FieldTooltip
+                label="Create a PageSpeed Insights API key"
+                steps={[
+                  "Open Google Cloud Console and select (or create) a project.",
+                  "APIs & Services → Library → enable “PageSpeed Insights API”.",
+                  "APIs & Services → Credentials → Create credentials → API key.",
+                  "Restrict the key to PageSpeed Insights API for production, then paste it below.",
+                ]}
+              />
+            </label>
+            {initial.hasPageSpeedKey ? (
+              <p className="mt-1 text-xs text-emerald-800">A key is saved. Enter a new value to replace it.</p>
+            ) : (
+              <p className="mt-1 text-xs text-muted">No key stored yet.</p>
+            )}
+            <input
+              type="password"
+              autoComplete="off"
+              value={form.pageSpeedApiKeyInput}
+              onChange={(e) => setForm((f) => ({ ...f, pageSpeedApiKeyInput: e.target.value, removePageSpeedKey: false }))}
+              placeholder="Paste new key or leave blank"
+              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 font-mono text-sm"
+            />
+            {initial.hasPageSpeedKey ? (
+              <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={form.removePageSpeedKey}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      removePageSpeedKey: e.target.checked,
+                      pageSpeedApiKeyInput: e.target.checked ? "" : f.pageSpeedApiKeyInput,
+                    }))
+                  }
+                />
+                Remove my PageSpeed key
+              </label>
+            ) : null}
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -238,102 +345,6 @@ export function BusinessSettingsForm({
             />
             <span className="text-sm text-slate-800">Include local SEO pack when my profile fits local search</span>
           </label>
-        </div>
-
-        <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4">
-          <p className="text-sm font-semibold text-slate-900">Optional API keys (BYOK)</p>
-          <p className="mt-1 text-xs text-muted">
-            If the server has no global key, or you want your own quota, add keys here. They are stored on your account only.
-            Leave blank to keep an existing key; check &quot;Remove&quot; to delete yours.
-          </p>
-          <div className="mt-4 space-y-4">
-            <div>
-              <label className="flex items-center gap-1 text-sm font-medium text-slate-700">
-                Google AI (Gemini) API key
-                <FieldTooltip
-                  label="Create a Gemini API key"
-                  steps={[
-                    "Open Google AI Studio: https://aistudio.google.com/apikey",
-                    "Sign in with the Google account that should own billing/quota.",
-                    "Click Create API key and choose or create a Google Cloud project.",
-                    "Copy the key and paste it below. Do not share it in chat or email.",
-                  ]}
-                />
-              </label>
-              {initial.hasGeminiKey ? (
-                <p className="mt-1 text-xs text-emerald-800">A key is saved on your account. Enter a new value to replace it.</p>
-              ) : (
-                <p className="mt-1 text-xs text-muted">No key stored yet.</p>
-              )}
-              <input
-                type="password"
-                autoComplete="off"
-                value={form.geminiApiKeyInput}
-                onChange={(e) => setForm((f) => ({ ...f, geminiApiKeyInput: e.target.value, removeGeminiKey: false }))}
-                placeholder="Paste new key or leave blank"
-                className="mt-1 w-full max-w-md rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
-              />
-              {initial.hasGeminiKey ? (
-                <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={form.removeGeminiKey}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        removeGeminiKey: e.target.checked,
-                        geminiApiKeyInput: e.target.checked ? "" : f.geminiApiKeyInput,
-                      }))
-                    }
-                  />
-                  Remove my Gemini key
-                </label>
-              ) : null}
-            </div>
-            <div>
-              <label className="flex items-center gap-1 text-sm font-medium text-slate-700">
-                PageSpeed Insights API key
-                <FieldTooltip
-                  label="Create a PageSpeed Insights API key"
-                  steps={[
-                    "Open Google Cloud Console and select (or create) a project.",
-                    "APIs & Services → Library → enable “PageSpeed Insights API”.",
-                    "APIs & Services → Credentials → Create credentials → API key.",
-                    "Restrict the key to PageSpeed Insights API for production, then paste it below.",
-                  ]}
-                />
-              </label>
-              {initial.hasPageSpeedKey ? (
-                <p className="mt-1 text-xs text-emerald-800">A key is saved on your account. Enter a new value to replace it.</p>
-              ) : (
-                <p className="mt-1 text-xs text-muted">No key stored yet.</p>
-              )}
-              <input
-                type="password"
-                autoComplete="off"
-                value={form.pageSpeedApiKeyInput}
-                onChange={(e) => setForm((f) => ({ ...f, pageSpeedApiKeyInput: e.target.value, removePageSpeedKey: false }))}
-                placeholder="Paste new key or leave blank"
-                className="mt-1 w-full max-w-md rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
-              />
-              {initial.hasPageSpeedKey ? (
-                <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={form.removePageSpeedKey}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        removePageSpeedKey: e.target.checked,
-                        pageSpeedApiKeyInput: e.target.checked ? "" : f.pageSpeedApiKeyInput,
-                      }))
-                    }
-                  />
-                  Remove my PageSpeed key
-                </label>
-              ) : null}
-            </div>
-          </div>
         </div>
 
         {canMonthlyReport ? (

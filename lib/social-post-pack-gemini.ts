@@ -1,5 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType, type Schema } from "@google/generative-ai";
 import type { IndustryVertical, MarketingGoal } from "@prisma/client";
+import { parseGeminiRetryDelayMs } from "@/lib/gemini-http";
+import { parseGeminiJsonObject } from "@/lib/parse-gemini-json";
 import { presetGuidanceForBlog } from "@/lib/marketing-presets";
 
 export type SocialPackResult = {
@@ -7,6 +9,20 @@ export type SocialPackResult = {
   instagram: string;
   facebook: string;
 };
+
+const SOCIAL_PACK_SCHEMA = {
+  type: SchemaType.OBJECT,
+  required: ["linkedin", "instagram", "facebook"] as string[],
+  properties: {
+    linkedin: { type: SchemaType.STRING },
+    instagram: { type: SchemaType.STRING },
+    facebook: { type: SchemaType.STRING },
+  },
+} as Schema;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 export async function generateSocialPostPack(input: {
   businessName?: string | null;
@@ -18,16 +34,16 @@ export async function generateSocialPostPack(input: {
   summary: string;
   bodyExcerpt: string;
   platforms: ("linkedin" | "instagram" | "facebook")[];
+  /** Optional BYOK; falls back to GEMINI_API_KEY */
+  geminiApiKey?: string | null;
 }): Promise<SocialPackResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+  const apiKey = input.geminiApiKey?.trim() || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set and no client Gemini key provided");
+  }
 
   const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    generationConfig: { responseMimeType: "application/json" },
-  });
 
   const vertical = input.industryVertical ?? "GENERAL";
   const goal = input.marketingGoal ?? "OTHER";
@@ -63,9 +79,51 @@ Return JSON only:
 
 Requested platforms: ${needLi ? "linkedin " : ""}${needIg ? "instagram " : ""}${needFb ? "facebook" : ""}`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  const parsed = JSON.parse(text) as Partial<SocialPackResult>;
+  const schemaRejected = (msg: string) =>
+    /responseSchema|response_schema|JSON schema|generationConfig|unsupported.*schema/i.test(msg);
+
+  let useSchema = true;
+  let text = "";
+
+  outer: while (true) {
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: useSchema
+        ? {
+            responseMimeType: "application/json" as const,
+            responseSchema: SOCIAL_PACK_SCHEMA,
+          }
+        : { responseMimeType: "application/json" as const },
+    });
+
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        const result = await model.generateContent(prompt);
+        text = result.response.text();
+        break outer;
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (useSchema && schemaRejected(msg)) {
+          useSchema = false;
+          continue outer;
+        }
+        const retryable =
+          msg.includes("429") ||
+          msg.includes("503") ||
+          msg.includes("UNAVAILABLE") ||
+          msg.includes("Too Many Requests") ||
+          msg.includes("RESOURCE_EXHAUSTED");
+        if (retryable && attempt < 5) {
+          const delay = parseGeminiRetryDelayMs(msg) ?? 1500 * attempt;
+          await sleep(delay);
+          continue;
+        }
+        throw e;
+      }
+    }
+  }
+
+  const parsed = parseGeminiJsonObject(text);
   return {
     linkedin: needLi ? String(parsed.linkedin || "").slice(0, 4000) : "",
     instagram: needIg ? String(parsed.instagram || "").slice(0, 4000) : "",
