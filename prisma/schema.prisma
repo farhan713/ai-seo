@@ -16,10 +16,12 @@ enum UserRole {
 }
 
 /// ₹499 starter · ₹899 growth (blogs + backlinks) · ₹1599 elite (+ social automation)
+/// ELITE_TRIAL: time-limited Elite-equivalent access (full Elite feature set, separate billing state).
 enum Plan {
   STARTER_499
   GROWTH_899
   ELITE_1599
+  ELITE_TRIAL
 }
 
 enum SubscriptionStatus {

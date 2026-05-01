@@ -8,6 +8,7 @@ export function trackedKeywordLimit(plan: Plan | null | undefined): number {
     case "GROWTH_899":
       return 50;
     case "ELITE_1599":
+    case "ELITE_TRIAL":
       return 100;
     default:
       return 0;
