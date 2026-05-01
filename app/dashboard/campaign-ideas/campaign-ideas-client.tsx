@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export type IdeaRow = {
@@ -69,6 +69,44 @@ export function CampaignIdeasClient({
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/campaign-ideas/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ focus: "", cacheOnly: true }),
+        });
+        if (!res.ok || cancelled) return;
+        const j = (await res.json().catch(() => ({}))) as {
+          ideas?: IdeaRow[];
+          calendarDateLabel?: string;
+          weekdayName?: string;
+          generatedAt?: string;
+          fromCache?: boolean;
+          cacheMiss?: boolean;
+        };
+        if (cancelled) return;
+        if (j.cacheMiss || !Array.isArray(j.ideas) || j.ideas.length === 0) return;
+        setIdeas(j.ideas);
+        if (j.calendarDateLabel && j.weekdayName && j.generatedAt) {
+          setMeta({
+            date: j.calendarDateLabel,
+            weekday: j.weekdayName,
+            at: j.generatedAt,
+            fromCache: j.fromCache === true,
+          });
+        }
+      } catch {
+        // silent — user can still click the buttons
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function createDraft(idea: IdeaRow) {
     if (!canCreateDraft) return;

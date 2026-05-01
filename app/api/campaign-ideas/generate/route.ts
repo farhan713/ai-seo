@@ -49,13 +49,18 @@ export async function POST(req: Request) {
   const calendarDateLabel = now.toISOString().slice(0, 10);
   const weekdayName = now.toLocaleDateString("en-IN", { weekday: "long", timeZone: "Asia/Kolkata" });
 
-  const body = (await req.json().catch(() => ({}))) as { focus?: unknown; forceRefresh?: unknown };
+  const body = (await req.json().catch(() => ({}))) as {
+    focus?: unknown;
+    forceRefresh?: unknown;
+    cacheOnly?: unknown;
+  };
   let optionalFocus: string | null = null;
   if (typeof body.focus === "string") {
     const t = body.focus.trim().slice(0, MAX_FOCUS);
     optionalFocus = t.length > 0 ? t : null;
   }
   const forceRefresh = body.forceRefresh === true;
+  const cacheOnly = body.cacheOnly === true;
 
   const dayKey = calendarDateLabel;
   const focusKey = focusCacheKey(optionalFocus);
@@ -78,6 +83,15 @@ export async function POST(req: Request) {
           fromCache: true,
         });
       }
+    }
+    if (cacheOnly) {
+      return NextResponse.json({
+        ideas: [],
+        calendarDateLabel: dayKey,
+        weekdayName,
+        fromCache: false,
+        cacheMiss: true,
+      });
     }
   }
 
