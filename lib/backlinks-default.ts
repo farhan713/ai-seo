@@ -159,3 +159,38 @@ export function pickDirectoriesForUser(profile: UserProfileForDirectories): Dire
 
 /** Back-compat default for any code path that still expects a flat list (universal-only). */
 export const DEFAULT_BACKLINK_DIRECTORIES: DirectoryEntry[] = UNIVERSAL;
+
+function dayOfYearUtc(d: Date): number {
+  const start = Date.UTC(d.getUTCFullYear(), 0, 1);
+  const diff = d.getTime() - start;
+  return Math.floor(diff / 86_400_000);
+}
+
+/**
+ * Used by the daily Elite cron to drop a fresh batch of `count` directories
+ * deterministically based on the calendar day. Same day → same slice, so the
+ * cron is idempotent if it runs twice. Wraps around the pool, dedup by URL.
+ *
+ * Note: this picker is not user-aware. The dashboard "Refresh for my business"
+ * flow uses `pickDirectoriesForUser` (deterministic) or `generateBusinessBacklinkPlan`
+ * (Gemini, website-driven) instead.
+ */
+export function pickDailyBacklinkSlice(date: Date, count: number): DirectoryEntry[] {
+  const sorted = [...POOL].sort((a, b) => {
+    const p = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+    if (p !== 0) return p;
+    return a.directoryName.localeCompare(b.directoryName);
+  });
+  if (sorted.length === 0) return [];
+
+  const start = dayOfYearUtc(date) % sorted.length;
+  const out: DirectoryEntry[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < sorted.length && out.length < count; i++) {
+    const entry = sorted[(start + i) % sorted.length];
+    if (seen.has(entry.directoryUrl)) continue;
+    seen.add(entry.directoryUrl);
+    out.push(entry);
+  }
+  return out;
+}

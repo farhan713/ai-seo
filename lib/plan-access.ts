@@ -98,3 +98,8 @@ export function hasTrendCampaignIdeas(plan: Plan | null | undefined): boolean {
 export function hasCampaignIdeaSocialDraft(plan: Plan | null | undefined): boolean {
   return hasSocialAutomation(plan);
 }
+
+/** Daily 9 AM IST cron eligibility — Elite plan gets a daily backlink slice + 2 fresh blogs. */
+export function hasDailyEliteCadence(plan: Plan | null | undefined): boolean {
+  return plan === "ELITE_1599";
+}
