@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 import { parseIndustryVertical, parseMarketingGoal } from "@/lib/marketing-presets";
+import { defaultsForPlan } from "@/lib/subscription-defaults";
+import { ensureDefaultBacklinksForUser } from "@/lib/ensure-backlinks";
+import { ensureTrackedKeywordsSeeded } from "@/lib/tracked-keywords-bootstrap";
+
+/** Length of the auto-granted Elite trial for new self-signups. */
+const ELITE_TRIAL_DAYS = 14;
 
 export async function POST(req: Request) {
   try {
@@ -40,24 +46,70 @@ export async function POST(req: Request) {
     }
 
     const hashed = await hashPassword(password);
-    await prisma.user.create({
-      data: {
-        email,
-        name,
-        password: hashed,
-        role: "CLIENT",
-        businessName,
-        businessUrl,
-        businessDescription,
-        industry,
-        industryVertical: iv ?? undefined,
-        marketingGoal: mg ?? undefined,
-        targetKeywords,
-        internalLinks: internalLinks as object[],
-      },
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + ELITE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
+    const trialDefaults = defaultsForPlan("ELITE_TRIAL");
+
+    // Atomically create User + active ELITE_TRIAL Subscription so we never end
+    // up with a registered user that has no plan.
+    const created = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          name,
+          password: hashed,
+          role: "CLIENT",
+          businessName,
+          businessUrl,
+          businessDescription,
+          industry,
+          industryVertical: iv ?? undefined,
+          marketingGoal: mg ?? undefined,
+          targetKeywords,
+          internalLinks: internalLinks as object[],
+        },
+      });
+
+      await tx.subscription.create({
+        data: {
+          userId: user.id,
+          plan: "ELITE_TRIAL",
+          status: "ACTIVE",
+          priceInInr: trialDefaults.priceInInr,
+          blogsPerWeek: trialDefaults.blogsPerWeek,
+          backlinksPerMonth: trialDefaults.backlinksPerMonth,
+          startDate: now,
+          endDate: trialEndsAt,
+        },
+      });
+
+      return user;
     });
 
-    return NextResponse.json({ ok: true });
+    // Best-effort post-creation bootstrap (mirrors /api/admin/subscriptions for
+    // ACTIVE Growth/Elite plans). Failures here must not block registration —
+    // the dashboard's own ensure functions will retry on first page load.
+    await ensureDefaultBacklinksForUser(created.id).catch((e) => {
+      console.warn(
+        `[register] ensureDefaultBacklinksForUser failed for ${created.email}:`,
+        e instanceof Error ? e.message : e
+      );
+    });
+    await ensureTrackedKeywordsSeeded(created.id).catch((e) => {
+      console.warn(
+        `[register] ensureTrackedKeywordsSeeded failed for ${created.email}:`,
+        e instanceof Error ? e.message : e
+      );
+    });
+
+    return NextResponse.json({
+      ok: true,
+      trial: {
+        plan: "ELITE_TRIAL",
+        endsAt: trialEndsAt.toISOString(),
+        days: ELITE_TRIAL_DAYS,
+      },
+    });
   } catch {
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });
   }

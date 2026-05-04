@@ -8,6 +8,8 @@ export function defaultsForPlan(plan: Plan): { priceInInr: number; blogsPerWeek:
       return { priceInInr: 899, blogsPerWeek: 3, backlinksPerMonth: 10 };
     case "ELITE_1599":
       return { priceInInr: 1599, blogsPerWeek: 3, backlinksPerMonth: 10 };
+    case "ELITE_TRIAL":
+      return { priceInInr: 0, blogsPerWeek: 3, backlinksPerMonth: 10 };
     default:
       return { priceInInr: 899, blogsPerWeek: 3, backlinksPerMonth: 10 };
   }

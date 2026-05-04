@@ -72,6 +72,10 @@ export default function RegisterPage() {
       <div className="mx-auto w-full max-w-lg rounded-2xl border border-slate-200 bg-card p-8 shadow-sm">
         <h1 className="text-2xl font-semibold tracking-tight text-primary">Create account</h1>
         <p className="mt-2 text-sm text-muted">Tell us about your business so we can tailor content.</p>
+        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+          <strong className="font-semibold">14-day Elite trial included.</strong> Every new account starts on the Elite
+          plan — full audits, AI blogs, daily backlinks, and Meta drafting — at no cost. We&apos;ll email before it ends.
+        </div>
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           {error ? (
             <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
